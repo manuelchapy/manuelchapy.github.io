@@ -13,10 +13,9 @@
 
 
 //var getUserDataRoute = "http://crayfish.snowfly.com/gameapi/getUserInfo";
-//var apiDataRoute2 = "https://everesttest.snowfly.com/gameapi/v1/getStartInfoplayGame";
-var apiDataRoute = "https://everesttest.snowfly.com/gameapi/v1/getStartInfo";
-//var apiDataRoute = "http://everesttest.snowfly.com/gameapi/v1/";
-//var playGameRoute = "http://crayfish.snowfly.com/gameapi/playTokens";
+var apiDataRoute = "https://everesttest.snowfly.com/gameapi/v1/";
+//var apiDataRoute = "https://everesttest.snowfly.com/gameapi/v1/";
+//var playGameRoute = "https://crayfish.snowfly.com/gameapi/playTokens";
 
 
 /**
@@ -36,7 +35,7 @@ var apiDataRoute = "https://everesttest.snowfly.com/gameapi/v1/getStartInfo";
  *
  */
 
-/*function getStartData(gameId){
+function getStartData(gameId){
     //Todo: Make Asynchronous
     //$.post("http://crayfish.snowfly.com/gameapi/getUserInfo", { gameId: gameId })
     //    .done(function( data ) {
@@ -56,8 +55,7 @@ var apiDataRoute = "https://everesttest.snowfly.com/gameapi/v1/getStartInfo";
     });
     return JSON.parse(foo.responseText);
 
-}*/
-
+}
 
 
 /**
@@ -70,7 +68,7 @@ var apiDataRoute = "https://everesttest.snowfly.com/gameapi/v1/getStartInfo";
  *          Tokens Played
  *          Total Points Won
  *          Play Id
- *
+ *          
  *          Example Output:
  *
  *          {"tokensReceived":1,"totalPoints":32,"playId":3}
@@ -88,16 +86,15 @@ function playGame(gameId, tokensPlayed){
         alert('Need Company ID for playGame');
         return;
     }
-    
+
     var foo =$.ajax({
         type: 'POST',
         url: apiDataRoute+'playGame',
         data: { tokens: tokensPlayed, gameId: gameId },
         async:false
     });
-    //console.log("que hizo pah: ", foo.responseText);
-    //return JSON.parse(foo.responseText);
-    return foo.responseText;
+    return JSON.parse(foo.responseText);
+
 
 }
 
