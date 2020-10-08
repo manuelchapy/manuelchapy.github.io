@@ -525,7 +525,7 @@ button[disabled] {
 
 .bar-z{
     position: relative;
-    width: 37px;
+    width: 37px !important;
     left: 0px;
     top: 0px;
 }
