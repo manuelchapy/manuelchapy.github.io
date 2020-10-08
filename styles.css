@@ -1,0 +1,27 @@
+        body {
+            margin: 0;
+            background-color: #fff;
+        }
+        canvas{
+            margin: 0px auto !important;
+        }
+
+        .no-server-request{
+    display: none;
+    text-align: center;
+    font-size: 40px;
+    color: black;
+    font-family: cursive;
+    background: white !important;
+	top: 50%; /* Buscamos el centro horizontal (relativo) del navegador */
+	left: 100%; /* Buscamos el centro vertical (relativo) del navegador */
+	width: 500 px; /* Definimos el ancho del objeto a centrar */
+	height: 500px; /* Definimos el alto del objeto a centrar */
+	margin-top: 0px; /* Restamos la mitad de la altura del objeto con un margin-top */
+	margin-left: 0px; /* Restamos la mitad de la anchura del objeto con un margin-left */
+
+}
+
+  .mg-t{
+  margin-top: 20%;
+}
