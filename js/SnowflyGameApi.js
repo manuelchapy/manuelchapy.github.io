@@ -12,9 +12,10 @@
  */
 
 
-//var getUserDataRoute = "http://crayfish.snowfly.com/gameapi/getUserInfo";
+//var getUserDataRoute = "https://crayfish.snowfly.com/gameapi/getUserInfo";
 var apiDataRoute = "https://everesttest.snowfly.com/gameapi/v1/";
 //var apiDataRoute = "https://everesttest.snowfly.com/gameapi/v1/";
+//var playGameRoute = "https://crayfish.snowfly.com/gameapi/playTokens";
 //var playGameRoute = "https://crayfish.snowfly.com/gameapi/playTokens";
 
 

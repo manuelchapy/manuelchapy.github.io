@@ -1,0 +1,42 @@
+**This animation needs to start playin when SPIN is clicked**
+
+We have 5 Ribbons inside Slots System>Ribbon_Comp
+
+Ribbon_A
+Ribbon_B
+Ribbon_C
+Ribbon_D
+Ribbon_E
+
+Each Ribbon is unique so we need to pass the assets of the foods dinamically into this composition:
+
+* Target_X comp contains a Shape Layer Column_X that needs to be replaced by a winning food and it needs to be the same food in all sub ribbons
+
+* Random_A comp contains a Shape Layer Replace_XA that needs to be replaced by a random food. This random food needs to be unique in all sub ribbons
+
+* Random_B comp contains a Shape Layer Replace_XB that needs to be replaced by a random food. This random food needs to be unique in all sub ribbons
+
+* Double_Line comp contains a Shape Layer Replace_D that needs to be replaced by a winning food and it needs to be the same in all sub ribbons
+
+List of layer.shapes that need to be replaced:
+
+Column_A  (winning)
+Column_B  (the same food as above)
+Column_C  (the same food as above)
+Column_D  (the same food as above)
+Column_E  (the same food as above)
+Replace_AA  (random)
+Replace_AB  (random)
+Replace_BA  (random)
+Replace_BB  (random)
+Replace_CA  (random)
+Replace_CB  (random)
+Replace_DA  (random)
+Replace_DB  (random)
+Replace_EA  (random)
+Replace_EB  (random)
+Replace_D  (winning if double line)
+Replace_D  (the same as above)
+Replace_D  (the same as above)
+Replace_D  (the same as above)
+Replace_D  (the same as above)
