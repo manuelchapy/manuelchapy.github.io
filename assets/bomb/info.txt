@@ -1,0 +1,13 @@
+EXPLOSION
+
+200 x 99
+sprite 1024 x 1024
+35 frames
+20 fps
+
+BOMB
+
+80 x 80
+sprite 256 x 256
+9 frames
+20 fps

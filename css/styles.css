@@ -5,45 +5,17 @@
 
 body {
   overflow: hidden;
-  font-family: "Lato";
-  background-color: rgba(0,0,0,0.05);
-  background: #fcfcfc; 
-}
+  font-family: "Lato";}
 
-.super-container {
-  background-color: transparent;
-}
-
-.instructions-image{
-  background-size: contain;
-  background-position: center;
+#start-screen{
+  background: url('../assets/img/start_screen.png');
+  background-size: cover;
   background-repeat: no-repeat;
-  background-color: transparent;
-  width: 100%;
-  height: 100%; 
-    z-index: 101 !important;
-    position: absolute;
+  background-position: center;
 }
 
-#buttons-container > #spin-button{
-  width: 23%;
-}
-
-#buttons-container > #clean-button{
-  width: 26%;
-}
-
-#buttons-container > div{
-  height: 52px !important;
-  float: left;
-  margin-left: 3.2%;
-  width: 14.5%;
-}
-
-#loading-screen{
-  z-index: 999;
-  background-color: #000;
-}
+#final-screen{
+  display: none }
 
 #no-tokens-screen{
   background: url('../assets/img/nogametokens.png');
@@ -51,7 +23,6 @@ body {
   background-repeat: no-repeat;
   background-position: center;
   display: none;
-  z-index: 105 !important;
 }
 
 .no-server-request{
@@ -61,31 +32,10 @@ body {
     color: white;
     font-family: cursive;
     background: rgb(65,176,189) !important;
-    z-index: 101 !important;
 }
 
 .mg-t{
   margin-top: 45%;
-}
-
-#play-again > svg{
-  cursor: pointer; }
-
-#toplay-amount > div > p{
-  text-align: center;
-  font-family: "Lato";
-  color: white;
-  margin-bottom: 14%;
-  font-size: 24px; }
-
-.hide {
-  opacity: 0 }
-
-div#buttons-container {
-    margin-bottom: 7%; }
-
-.layer{
-  background-color: rgba(0,0,0,.01);
 }
 
 .capitalize {
@@ -280,7 +230,7 @@ div#buttons-container {
 
 .c-container {
   margin: 0 auto;
-  display: flex; }
+  display: block; }
 
 .radius {
   border-radius: 4px; }
@@ -291,16 +241,6 @@ div#buttons-container {
   justify-content: center; }
 
 .flex-v {
-  display: flex;
-  flex-direction: column;
-  justify-content: center; }
-
-  .flex-vb {
-  display: flex;
-  flex-direction: column;
-  justify-content: center; }
-
-  .flex-e {
   display: flex;
   flex-direction: column;
   justify-content: center; }
@@ -365,7 +305,7 @@ div#buttons-container {
   position: relative; }
 
 .disabled { 
-  opacity: 0.5;
+  opacity: 0.2;
   pointer-events: none;  }
 
 #bodymovin{
@@ -378,47 +318,70 @@ div#buttons-container {
   margin: auto;
   opacity: 1; }
     
-.game-container{
-  height: 100%;  
-  width: 100%;
-  background-image: url(../bg2.jpg);
+#gameplay-container {
+  background: url('../assets/img/wall.png');
   background-size: cover; 
 }
+
+#token-container {
+  margin-top: -16%; }
 
 #token-ui{
   background-image: url('../img/token-ui.png');
   background-size: cover;
-  width: 450px;
-  height: 230px; }
+  width: 80%;
+  height: 50px; }
 
 .draggable{
-  margin: -5px 0px 0px 0px;
+  margin: -4% 0px 0px 3%;
   cursor: pointer; }
+
+#to-play {
+  width: 16%;
+  margin: 8% auto;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 2px 10px rgba(0,0,0,.2);
+  padding: 3% 0px;}
 
 #bar{
   z-index: 10;
-  background-image: url(../img/bar.png);
-  width: 364px;
-  height: 10px;
-  margin: 80px auto 80px;
-  border-radius: 20px;}
+  background-image: url(../assets/img/slide_bar.png);
+  width: 80%;
+  height: 50px;
+  margin: 0px auto;
+  border-radius: 20px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain; }
 
 #tokens-amount{
-  color: #000;
-  font-size: 1em;
-  top: 29%;
-  text-align: center;
-  left: 49%;
-  font-family: 'Montserrat';
-  margin-left: 4px;}
+    margin-right: 20px;
+    padding: 0;
+    line-height: normal;
+    color: rgb(92, 38, 102);
+    font-size: 60px;
+    font-weight: bold;
+    width: 60% !important;
+    height: 60% !important;
+}
+
+#tokens-amount > svg{
+  left: 0;
+  top: 0;
+  position: absolute;
+}
 
 button{
   position: absolute;
   z-index: 999; }
 
 #play-button{
-  margin: 0 auto;
-  width: 120px;
+    width: 20% !important;
+  position: absolute !important;
+  bottom: 2% !important;
+  left: 40% !important;
+  cursor: pointer;
   z-index: 10}
 
 .points > p {
@@ -458,8 +421,11 @@ div.final-animation {
   top: 0;}
 
 .controls{
+  position: absolute;
   z-index: 99;
-  margin: 10px 10px 0 0; }
+  padding: 10px; 
+  top: 0px;
+  left: 0px; }
 
 .scores-container{
   margin: 10px 0 0 10px;
@@ -469,9 +435,6 @@ div.final-animation {
   padding: 5px;
   border-radius: 5px;
   text-align: center;}
-
-#token-container{
-  margin-top: 10%;}
 
 #play-again{
   width: 25%;
@@ -493,62 +456,38 @@ div.final-animation {
   position: absolute;}
 
 #token-screen{
+  background-color: rgba(255,255,255, 0.7);
   background-image: url('../img/token-bg.jpg'); }
 
 #game-screen{
-  background-image: url('../img/bg.jpg'); }
+  background-image: url('../img/crazypegs-bg.png'); }
 
 .layer{
+  top: 0;
+  left: 0;
   width: 100%;
-  z-index: 100;
+  z-index: 2;
+  max-width: 1120px;
   position: absolute;
-  background-repeat: no-repeat;
-  background-size: contain;
-   }
-
-#start-button-container{
-  position: absolute;
-  bottom: 0;
-  width: 100%; }
+  background-color: rgba(0,0,0,0.05);
+  margin: 0 auto; }
 
 .sound-container{
   width: 100px;
   height: 100px;
   position: absolute;
-  z-index: 106;
+  z-index: 100;
   top: 20px;
   left: 20px;
 }
 
-.instruction-container{
-  width: 30px; 
-  height: 30px;
-}
-
-#instruction{
+#start-button, #play-button {
   position: absolute;
+  left: 0;
+  bottom: 5%;
   width: 100%;
-  max-width: 1120px; 
-  background-color: rgba(0,0,0,.5);
- }
-
- .i-size{
-  height: 50px;
-  width: 50px;
- }
-
-#start-screen {
-  background: url('../assets/img/start-screen.png');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
+  height: 60px;
 }
-
-#start-button {
-  margin: 0 auto;
-  width: 180px;
-  margin-bottom: 2%;
-  z-index: 10; }
 
 #init-screen > div{
   margin: 35% auto;
@@ -567,6 +506,27 @@ p#tokens, p#points {
 
 .controls-container > div{
   margin: 10px 5px; }
+
+.instructions-image{
+  background: url('../assets/img/cp-inst.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%; 
+}
+
+.inde{
+  z-index: -199;
+}
+
+.about{
+  width: 31px;
+  height: 31px;
+  background: url('../assets/img/about.png'); }
+
+.about:hover{
+  background: url('../assets/img/about-hover.png'); }
 
 .controls-container{
   position: absolute;
@@ -592,3 +552,48 @@ p#tokens, p#points {
     left: 2%;
   }
 }
+
+    .sliderContainer {
+      width: 85%;
+      margin: 0 auto;
+      z-index: 99
+    }
+
+    .slider {
+     -webkit-appearance: none;
+     width: 100%;
+     height: 20px;
+     background: linear-gradient(90deg, rgb(214,214,214) 60%, rgb(214,214,214) 60%);
+     outline: none;
+     opacity: 0.7;
+     -webkit-transition: 0.2s;
+     transition: opacity 0.2s;
+     border-radius: 12px;
+     box-shadow: 0px 1px 10px 1px rgba(26,26,26, .3);
+    
+    }
+
+   
+
+    .slider:hover {
+      opacity: 1;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+      left: 50%;
+    }
+
+    .slider::-moz-range-thumb {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50px;
+      cursor: pointer;
+    }
