@@ -2,6 +2,7 @@ var _userData;
 var _gameID = 999;
 var isMuted = false
 var playID;
+var slider;
 var dragging = false;
 var dragged = false;
 var tokensToPlay;
@@ -11,6 +12,7 @@ var draggOff = false
 var gameplayAnim;
 var finalSetted = false
 var finalAnimation;
+var balance;
 var __tokensResponse;
 var startButtonAnim, playButtonAnim;
 var isGamePlayPlayed = false
@@ -53,9 +55,13 @@ function init(){
         animationData: JSONS.startButton
     }
     startButtonAnim = bodymovin.loadAnimation(startButton)
-
+    if(!isMuted){
 	theme.play()
 	theme.loop = true
+    }
+    if(isMuted){
+    theme.pause()
+    }
 
 
     $('loading-message').hide();
@@ -110,6 +116,39 @@ function init(){
     	$('#skip-button').trigger('click') 
     }
 
+    balance = {
+        container: document.getElementById("balance"),
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        rendererSettings: {
+            progressiveLoad:false
+        },
+
+        animationData: JSONS.balance
+    }
+
+    //balanceAnim = bodymovin.loadAnimation(balance)
+
+            var tokensJ = {
+        container: document.getElementById("tokens-amount"),
+        renderer: 'svg',
+        loop: true,
+        autoplay: false,
+        rendererSettings: {
+            progressiveLoad:false
+        },
+
+        animationData: JSONS.tokensToPlay
+    }
+
+    tokensJAnim = lottie.loadAnimation(tokensJ)
+    tokensJAnim.addEventListener("DOMLoaded", function() {
+        
+         tokensJAnim.renderer.elements[0].updateDocumentData({t: slider.value+"", s:120});
+         //tokensJAnim.play()
+    });
+
 }
 
 function setupStoryTellingAnimation() {
@@ -127,7 +166,12 @@ function setupStoryTellingAnimation() {
     }
     var mapIntroAnim = bodymovin.loadAnimation(mapIntro)
     mapIntroAnim.play()
+    if(!isMuted){
     mapIntroSound.play()
+    }
+    if(isMuted){
+    mapIntroSound.pause()
+    }
     mapIntroAnim.addEventListener('complete', function(){
     	$('#skip-button').trigger('click')
     })
@@ -155,6 +199,9 @@ function skipButtonAction() {
 }
 
 function initializeUserData(){
+
+    slider = document.getElementById('myRange');
+
     $.ajax({
 
 	    type: "POST", 
@@ -162,6 +209,10 @@ function initializeUserData(){
 	    data: { gameId: _gameID },
 	    success: function( data ) {
 			_userData = data;
+            JSONS.balance.layers[0].t.d.k[0].s.t = _userData.tokenBalance+"";
+            JSONS.balance.layers[1].t.d.k[0].s.t = _userData.pointBalance+"";
+            $(".tokens-text-view > p.container").text(_userData.tokenBalance)
+            $(".points-text-view > p.container").text(_userData.pointBalance)
 			if (_userData.tokenBalance > 0){ $('#no-tokens-screen').css({display: 'none'}) }
             if(_userData.status == 0)
             {
@@ -169,8 +220,55 @@ function initializeUserData(){
                 $('#no-server-request').fadeIn()
                 $('#t-s').text(_userData.message)
             }
-			$(".tokens-text-view > p.container").text(_userData.tokenBalance)
-			$(".points-text-view > p.container").text(_userData.pointBalance)
+            if (_userData.tokenBalance == 0){ 
+                $('#no-tokens-screen').css({display: 'block', zIndex: 999}) 
+           }
+              if(_userData.status == 0){
+                //$('#t-s').text(_userData.message)
+                //$('#no-server-request').fadeIn()
+                $('#no-tokens-screen').css({display: 'block', zIndex: 1000})
+                }
+
+           
+
+            if (_userData.tokenBalance < 250) {
+                    slider.max = _userData.tokenBalance;
+                    JSONS.balance.layers[10].t.d.k[0].s.t = slider.max+""; 
+                } else {
+                    slider.max = 250;
+                    JSONS.balance.layers[10].t.d.k[0].s.t = slider.max+"";
+                }
+
+            balanceAnim = bodymovin.loadAnimation(balance)
+               
+
+            slider.oninput = function() {
+                
+                    tokensJAnim.renderer.elements[0].updateDocumentData({
+                        t: Math.round(slider.value)+"", s: 30
+                    });
+            
+                tokensJAnim.play();
+
+            }
+           
+
+            function updateTrackColor () {
+                if (_userData.tokenBalance < 50) {
+                    x = slider.value * 100 / _userData.tokenBalance 
+                    var linear = -(100) + ((x-0)/(100-0)) * (100-(-(100)))
+                    x = linear
+                } else if (_userData.tokenBalance >= 50 && _userData.tokenBalance <= 250) {
+                    x = slider.value * 100 / _userData.tokenBalance
+                } else {
+                    x = slider.value * 100 / 250
+                }
+                var color = 'linear-gradient(90deg, rgb(32,229,98)' + x + '%, rgb(214,214,214)' + x + '%)';
+                slider.style.background = color
+            }
+
+            slider.addEventListener('mousemove', updateTrackColor);
+            slider.addEventListener('touchmove', updateTrackColor);
 	    }
 	});
 }
@@ -178,14 +276,39 @@ function initializeUserData(){
 function startButtonAction(){
 	$('#start-button').addClass('disabled')
 	startButtonAnim.play()
+    if(!isMuted){
 	hit.play()
+    }
+    if(isMuted){
+    hit.pause()
+    }
 	var container = $(this).data('container')
 	$('#' + container).fadeOut()
 	setupStoryTellingAnimation()
 
+    if(!isMuted){
 	theme.pause()
 	rhythm.play()
 	rhythm.loop = true
+    }
+    if(!isMuted){
+    theme.pause()
+    rhythm.pause()
+    }
+
+     /*balance = {
+        container: document.getElementById("balance"),
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        rendererSettings: {
+            progressiveLoad:false
+        },
+
+        animationData: JSONS.balance
+    }
+
+    balanceAnim = bodymovin.loadAnimation(balance)*/
 
     var playButton = {
         container: document.getElementById("tokens-button"),
@@ -204,7 +327,7 @@ function startButtonAction(){
 function setupMapScreen() {
 	
 	JSONS.map.layers[0].ef[playID - 1].ef[0].v.k = 1
-	JSONS.map.layers[1].t.d.k[0].s.t = tokensToPlay + ""
+	JSONS.map.layers[1].t.d.k[0].s.t = slider.value + ""
 	JSONS.map.layers[2].t.d.k[0].s.t = pointsWon + ""
 
 	var map = {
@@ -219,7 +342,12 @@ function setupMapScreen() {
         animationData: JSONS.map
     }
     mapAnim = bodymovin.loadAnimation(map)
+    if(!isMuted){
     mapSound.play()
+    }
+    if(isMuted){
+    mapSound.pause()
+    }
     var arrayFrame = (playID == 10) ? [0, 92] : [0, 170]
     mapAnim.playSegments(arrayFrame, true);
     $('#map-screen').css({zIndex: 99})
@@ -267,7 +395,12 @@ function setupMapScreen() {
 		mapAnim.addEventListener('complete', function(){
 			$('#map-screen').fadeOut()
 			jackpotAnim.play()
+            if(!isMuted){
 			jackpotSound.play()
+            }
+            if(isMuted){
+            jackpotSound.pause()
+            }
 			confettiAnim.play()
 		    setTimeout(function(){
 				$('#jackpot-screen').click(function() {
@@ -293,21 +426,33 @@ function restartGame() {
 
 function tokensButtonAction(){
 	$('.tokens-button').addClass('disabled')
-	hit.play()
+    if(!isMuted){
+     hit.play()   
+    }
+	if(isMuted){
+     hit.pause()   
+    }
 	var container = $(this).data('container')
 	$('#' + container).fadeOut()	
 
+    if(!isMuted){
 	rhythm.pause()
 	theme.play()
 	theme.loop = true
+    }
+    if(isMuted){
+    rhythm.pause()
+    theme.pause()
+    }
 
 	tokensToPlay = parseInt( $("#tokens-amount").text() )
-	$('#tokens-to-play').text( tokensToPlay )	
+	$('#tokens-to-play').text( slider.value )	
 
     $.ajax({
         type: "POST", 
         url: "https://qa.staging.snowfly.com/gameapi/v1/playGame", 
-        data: { tokens: tokensToPlay, gameId: _gameID },
+        //data: { tokens: tokensToPlay, gameId: _gameID },
+        data: { tokens: slider.value, gameId: _gameID },
         success: function( data ) {
             playID = data.playId;
             pointsWon = data.totalPoints;
@@ -350,10 +495,16 @@ function runGamePlay(){
     dial.mousedown(function(e) {
       dragging = true;
       offset = Math.atan2(dial.centerY - e.pageY, e.pageX - dial.centerX);
+      if(!isMuted){
       rope.play()
       theme.play()
 	  rhythm.pause()
-      rope.loop = true
+      rope.loop = true}
+      if(isMuted){
+      rope.pause()
+      theme.pause()
+      rhythm.pause()
+      }
     })
 
 	$('.spin-button-container').addClass('flex-v')
@@ -408,8 +559,15 @@ function gamePlayFunc(){
 	draggOff = true
 	isGamePlayPlayed = true
 	$("#wheel").css({pointerEvents: 'none'})
-	rope.pause()
-	theme.play()
+    if(!isMuted){
+       rope.pause()
+       theme.play() 
+    }
+    if(isMuted){
+       rope.pause()
+       theme.pause() 
+    }
+	
 	if (!dragged){
       	dragging = false
       	setTimeout(function(){  
@@ -436,7 +594,7 @@ function gamePlayFunc(){
 				if (!finalSetted) finalSetted = true
 				$('#final-button').click(restartGame)
 			} else { setTimeout(function(){ 
-				post.play()
+				post    
 				$('#support').css({opacity: 0}) }, 1800) }
 		});
 	}

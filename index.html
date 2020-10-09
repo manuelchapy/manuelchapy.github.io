@@ -72,7 +72,7 @@
 					</div>
 				</div>
 				<div class="flex-v" id="support">
-					<div class='c-container' id="wheel"></div>
+					<div class='c-container wheel' id="wheel"></div>
 				</div>
 				<div id="tokens-to-play-container" class="white-color flex-h f-end">Tokens to play: <span id='tokens-to-play'>0</span></div>
 			</div>
@@ -91,30 +91,29 @@
 						<p class='t-center'>Points</p>
 					</div>
 				</div>
-				<div class="flex-v">
-					<div class="flex-h">
-			           <div id='tokens-container' class='flex-v h-100'>
-			                <div class="flex-h">
-			                    <div id='token-ui' class='flex-v'>
-			                        <div id="tokens-amount">1</div>
-			                        <div id='bar'>
-			                            <img class='draggable' src="./images/drag_button.png" alt="">    
-			                        </div>
-			                        <div class="inicator flex-h space-around">
-			                            <div class="indicator transition" data-distance="0px"></div>
-			                            <div class="indicator transition" data-distance="92px"></div>
-			                            <div class="indicator transition" data-distance="202px"></div>
-			                            <div class="indicator transition" data-distance="344px"></div>
-			                        </div>
-			                    </div>
-			                </div>
-			            </div>
+				<!-- token screen-->
+				<div class="layer">
+					<div class="layer" id="token-screen">
+						<div class="layer">
+							<div class="layer"></div>
+							<div class="score-container flex-h">
+								<div id="balance"></div>
+							</div>
+						</div>
 					</div>
-					<div class="flex-h">
-						<div id="tokens-button" data-container="token-screen"></div>
+					<div class="flex-v layer">
+						<div class="sliderContainer">
+							<input type="range" min="1" max="250" value="1" id="myRange" class="slider">
+						</div>
+						<div class="flex-h w-30 c-container" id="amount-container">
+						<div class="flex-v">
+							<div id="tokens-amount"></div>
+						</div>
+					</div>
+					<div id="tokens-button" data-container="token-screen"></div>
 					</div>
 				</div>
-				<div></div>
+				<!---->
 			</div>
 		</div>
 		<div id="no-tokens-screen" class="layer"></div>
