@@ -707,6 +707,16 @@ p#tokens, p#points {
   opacity: 0;
   pointer-events: none;
 }
+
+#wheel{
+ /* background-image: url('../svg/wheel.svg'); */
+  background-position: center;
+  background-repeat: no-repeat;
+  transform: rotate(0);
+  cursor: pointer; 
+  z-index: 1000;
+}
+
 #gameplay{
   position: absolute; 
   top: 0;}
@@ -830,6 +840,7 @@ p.container {
     transform: rotate(0);
     cursor: pointer;
     padding-bottom: 20px !important;
+    z-index: 1000;
 }
 
 #start-button {
