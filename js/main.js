@@ -489,7 +489,7 @@ function runGamePlay(){
     var dial = $("#wheel");
     dial.centerX = dial.offset().left + dial.width()/2;
     dial.centerY =  dial.offset().top + dial.height()/2;
-    
+    //jeloy
    
     var offset, dragging = false;
     dial.mousedown(function(e) {
