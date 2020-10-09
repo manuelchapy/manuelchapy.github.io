@@ -82,7 +82,7 @@ function startButtonPressed(animation) {
 
     $.ajax({
         type: "POST", 
-        url: "https://everesttest.snowfly.com/gameapi/v1/getStartInfo", 
+        url: "https://qa.staging.snowfly.com/gameapi/v1/getStartInfo", 
         data: { gameId: _gameID },
         success: function( data ) {
            _userData = data;
@@ -200,7 +200,7 @@ function startButtonPressed(animation) {
                 //_tokensToPlay = parseInt( $('#tokens-amount').text() )
                 $.ajax({
                     type: "POST", 
-                    url: "https://everesttest.snowfly.com/gameapi/v1/playGame", 
+                    url: "https://qa.staging.snowfly.com/gameapi/v1/playGame", 
                     data: { tokens: slider.value, gameId: _gameID },
                     success: function( data ) {
                         __tokensResponse = data;
