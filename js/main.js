@@ -1,52 +1,47 @@
 var _userData;
 var _gameID = 999;
 var isMuted = false
-var _tokensToPlay = 0;
-var __tokensResponse = null;
-var __startButtonPressed = false;
-var slider
-var hit, whoosh, prize, crowd, pregame, theme, hooray;
+var playID;
+var slider;
+var dragging = false;
+var dragged = false;
+var tokensToPlay;
+var pointsWon;
+var gameplay;
+var draggOff = false
+var gameplayAnim;
+var finalSetted = false
+var finalAnimation;
 var balance;
+var __tokensResponse;
+var startButtonAnim, playButtonAnim;
+var isGamePlayPlayed = false
+var hit, prize, whoosh, crowd, rhythm, rope, theme, post, jackpotSound, mapIntroSound, mapSound, pageFlip;
+var pricesKeys = ["flag", "compass", "sword", "bananas", "lifevest", "anchor", "treasure", "canon", "parrot", "monkey ", "treasure"]
+
+
+var degrees = [324, 216, 288, 180, 144, 108, 0, 36, 72, 252]
+
+function setupSounds() {
+	prize = document.getElementById('prize')
+	whoosh = document.getElementById('whoosh')
+	crowd = document.getElementById('crowd')
+	rhythm = document.getElementById('rhythm')
+	rope = document.getElementById('rope')
+	theme = document.getElementById('theme')
+	post = document.getElementById('post-spin')
+	hit = document.getElementById('hit')
+	//New sounds
+	jackpotSound = document.getElementById('jackpot')
+	mapIntroSound = document.getElementById('map_intro')
+	mapSound = document.getElementById('map')
+	pageFlip = document.getElementById('page-flip')
+}
 
 function init(){
 
-    hit = document.getElementById('hit');
-    prize = document.getElementById('prize');
-    crowd = document.getElementById('crowd');
-    whoosh = document.getElementById('whoosh');
-    pregame = document.getElementById('pregame');
-    theme = document.getElementById('theme');
-    hooray = document.getElementById('hooray');
-
-    slider = document.getElementById('myRange');
-	setupLayerClass()	
-    pregame.play()
-    pregame.loop = true
-   
-    $('.about').click(function(){
-        $('#instruction').css({zIndex: 102, display: 'flex'})
-    })
-
-    $('.instructions-image').click(function(){
-        $('#instruction').css({zIndex: -199})
-    })
-
-   $('.sound-control').click(function(){
-        isMuted = !isMuted
-        setSoundSettings()
-    })
-
-}
-
-function setupLayerClass() {
-
-    var maxHeight = (window.innerHeight > 720) ? 720 : window.innerHeight
-    var maxWidth = maxHeight == window.innerHeight ? ($(window).height() * 720 / 720) : 720
-    $('.layer, .super-container').css({
-	    height: ($('.layer').width() * 720 / 720) + "px", 
-        maxHeight: maxHeight + "px",
-        maxWidth: maxWidth + "px"
-    })
+    $('#loading-message').css('z-index', '-99');
+    $('#load').text(" ");
 
     var startButton = {
         container: document.getElementById("start-button"),
@@ -57,92 +52,194 @@ function setupLayerClass() {
             progressiveLoad:false
         },
 
-        animationData: jsons.startButton
+        animationData: JSONS.startButton
     }
-    var startButtonAnim = bodymovin.loadAnimation(startButton)
+    startButtonAnim = bodymovin.loadAnimation(startButton)
+    if(!isMuted){
+	theme.play()
+	theme.loop = true
+    }
+    if(isMuted){
+    theme.pause()
+    }
 
-    if(window.location.href.match("no-init") != null){
-        isMuted = (getParameterByName('isMuted') == 'true');
+
+    $('loading-message').hide();
+    $('.layer, .main-container').css({
+	    height: ($('.layer').width() * 400 / 560) + "px", 
+        maxHeight: window.innerHeight + "px",
+        maxWidth: ($(window).height() * 560 / 400) + "px"
+    })
+
+    $('.sound-toggle').click(function(){
+    	hit.play()
+        isMuted = !isMuted
         setSoundSettings()
-        startButtonPressed(startButtonAnim)
-    } else {
-        $('#start-button').click(function(){
-            $(this).addClass('disabled')
-            startButtonPressed(startButtonAnim)
-        })    
+    })
+
+	var sizeValue = $('.layer').height() * .62
+    $("#wheel").width(sizeValue).height(sizeValue)
+
+    initializeUserData()
+    
+    $('#start-button').click(startButtonAction)
+    $('#tokens-button').click(tokensButtonAction)
+    $('#skip-button').click(skipButtonAction)
+
+    $('#bar').click(function(e){
+        var distanceA = ($('body').width()/2) - ($('.layer').width()/2)
+        var distanceB = ($('.layer').width()/2) - ($('#token-ui').width()/2)
+        var distanceC = ($('#token-ui').width()/2) - ($('#bar').width()/2)
+        var value = e.clientX - (distanceA + distanceB + distanceC) - ($('.draggable').width()/2)
+        $('.draggable').css({left: value})
+        updateDraggableValue($('.draggable').css('left'))
+    })
+
+    $('.draggable').draggable({ 
+        axis: "x",
+        containment: "#bar",
+        start: function() {
+            updateDraggableValue($('.draggable').css('left'))
+        },
+        drag: function() {
+            updateDraggableValue($('.draggable').css('left'))
+        },
+        stop: function() {
+            updateDraggableValue($('.draggable').css('left'))
+        }
+    });
+
+    if(window.location.href.match("no-init") != null){ 
+    	isMuted = (getParameterByName('isMuted') == 'true');
+        setSoundSettings()
+    	$('#start-button').trigger('click') 
+    	$('#skip-button').trigger('click') 
     }
+
+    balance = {
+        container: document.getElementById("balance"),
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        rendererSettings: {
+            progressiveLoad:false
+        },
+
+        animationData: JSONS.balance
+    }
+
+    //balanceAnim = bodymovin.loadAnimation(balance)
+
+            var tokensJ = {
+        container: document.getElementById("tokens-amount"),
+        renderer: 'svg',
+        loop: true,
+        autoplay: false,
+        rendererSettings: {
+            progressiveLoad:false
+        },
+
+        animationData: JSONS.tokensToPlay
+    }
+
+    tokensJAnim = lottie.loadAnimation(tokensJ)
+    tokensJAnim.addEventListener("DOMLoaded", function() {
+        
+         tokensJAnim.renderer.elements[0].updateDocumentData({t: slider.value+"", s:120});
+         //tokensJAnim.play()
+    });
+
+}
+
+function setupStoryTellingAnimation() {
+    
+    var mapIntro = {
+        container: document.getElementById("storytel-container"),
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        rendererSettings: {
+            progressiveLoad:false
+        },
+
+        animationData: JSONS.mapIntro
+    }
+    var mapIntroAnim = bodymovin.loadAnimation(mapIntro)
+    mapIntroAnim.play()
+    if(!isMuted){
+    mapIntroSound.play()
+    }
+    if(isMuted){
+    mapIntroSound.pause()
+    }
+    mapIntroAnim.addEventListener('complete', function(){
+    	$('#skip-button').trigger('click')
+    })
+
+    var skipButton = {
+        container: document.getElementById("skip-button"),
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        rendererSettings: {
+            progressiveLoad:false
+        },
+
+        animationData: JSONS.skipButton
+    }
+    var skipButtonAnim = bodymovin.loadAnimation(skipButton)
+    skipButtonAnim.play()
     
 }
 
-function startButtonPressed(animation) {
-    animation.play()
-    hit.play()
-    initializeGame()
+function skipButtonAction() {
+	var container = $(this).data('container')
+	mapIntroSound.pause()
+	$('#' + container).fadeOut()
+}
 
+function initializeUserData(){
+
+    slider = document.getElementById('myRange');
 
     $.ajax({
-        type: "POST", 
-        url: "https://qa.staging.snowfly.com/gameapi/v1/getStartInfo", 
-        data: { gameId: _gameID },
-        success: function( data ) {
-           _userData = data;
-           /*if (_userData.tokenBalance > 0){ 
-           		$('#no-tokens-screen').css({display: 'none'}) 
-           }*/
-           if (_userData.tokenBalance == 0){ 
-                $('#about').fadeOut();
-                $('#no-tokens-screen').fadeIn(); 
-           }
-           if(_userData.status == 0){
+
+	    type: "POST", 
+	    url: "https://qa.staging.snowfly.com/gameapi/v1/getStartInfo", 
+	    data: { gameId: _gameID },
+	    success: function( data ) {
+			_userData = data;
+            JSONS.balance.layers[0].t.d.k[0].s.t = _userData.tokenBalance+"";
+            JSONS.balance.layers[1].t.d.k[0].s.t = _userData.pointBalance+"";
+            $(".tokens-text-view > p.container").text(_userData.tokenBalance)
+            $(".points-text-view > p.container").text(_userData.pointBalance)
+			if (_userData.tokenBalance > 0){ $('#no-tokens-screen').css({display: 'none'}) }
+            if(_userData.status == 0)
+            {
                 $('#about').fadeOut()
-                $('#t-s').text(_userData.message)
                 $('#no-server-request').fadeIn()
+                $('#t-s').text(_userData.message)
+            }
+            if (_userData.tokenBalance == 0){ 
+                $('#no-tokens-screen').css({display: 'block', zIndex: 999}) 
            }
-           	$('#start-screen').fadeOut()
-       
-            jsons.tokenScreen.layers[0].t.d.k[0].s.t = ""+_userData.tokenBalance
-            jsons.tokenScreen.layers[1].t.d.k[0].s.t = ""+_userData.pointBalance
+              if(_userData.status == 0){
+                //$('#t-s').text(_userData.message)
+                //$('#no-server-request').fadeIn()
+                $('#no-tokens-screen').css({display: 'block', zIndex: 1000})
+                }
+
+           
 
             if (_userData.tokenBalance < 250) {
-                console.log('<250')
-                slider.max = _userData.tokenBalance;
-              jsons.tokenScreen.layers[4].t.d.k[0].s.t = slider.max+""; 
-            } else {
-                slider.max = 250;
-               jsons.tokenScreen.layers[4].t.d.k[0].s.t = slider.max+"";
-            }
-            
+                    slider.max = _userData.tokenBalance;
+                    JSONS.balance.layers[10].t.d.k[0].s.t = slider.max+""; 
+                } else {
+                    slider.max = 250;
+                    JSONS.balance.layers[10].t.d.k[0].s.t = slider.max+"";
+                }
 
-             balance = {
-                container: document.getElementById("balances-container"),
-                renderer: 'svg',
-                loop: false,
-                autoplay: false,
-                rendererSettings: {
-                    progressiveLoad:false
-                },
-
-                animationData: jsons.tokenScreen
-            }
-            //var balanceAnim = bodymovin.loadAnimation(balance)
-            //balanceAnim.play()
-
-            var playButton = {
-                container: document.getElementById("play-button"),
-                renderer: 'svg',
-                loop: false,
-                autoplay: false,
-                rendererSettings: {
-                    progressiveLoad:false
-                },
-
-                animationData: jsons.playButton
-            }
-            var playButtonAnim = bodymovin.loadAnimation(playButton)
-
-             
-
-            balanceAnim = lottie.loadAnimation(balance)
+            balanceAnim = bodymovin.loadAnimation(balance)
                
 
             slider.oninput = function() {
@@ -154,26 +251,6 @@ function startButtonPressed(animation) {
                 tokensJAnim.play();
 
             }
-
-            var tokensJ = {
-                container: document.getElementById("tokens-amount"),
-                renderer: 'svg',
-                loop: true,
-                autoplay: false,
-                rendererSettings: {
-                    progressiveLoad:false
-                },
-
-                animationData: jsons.tokensToPlay
-            }
-
-            tokensJAnim = lottie.loadAnimation(tokensJ)
-            tokensJAnim.addEventListener("DOMLoaded", function() {
-                
-                 tokensJAnim.renderer.elements[0].updateDocumentData({t: slider.value+"", s:120});
-                 //tokensJAnim.play()
-            });
-
            
 
             function updateTrackColor () {
@@ -192,69 +269,370 @@ function startButtonPressed(animation) {
 
             slider.addEventListener('mousemove', updateTrackColor);
             slider.addEventListener('touchmove', updateTrackColor);
-            
-            $('#play-button').click(function(){
-                $(this).addClass('disabled')
-                hit.play()
-                playButtonAnim.play()    
-                //_tokensToPlay = parseInt( $('#tokens-amount').text() )
-                $.ajax({
-                    type: "POST", 
-                    url: "https://qa.staging.snowfly.com/gameapi/v1/playGame", 
-                    data: { tokens: slider.value, gameId: _gameID },
-                    success: function( data ) {
-                        __tokensResponse = data;
-                        $('#token-screen').fadeOut()
-                        __startButtonPressed = true
-                        pregame.pause()
-                        theme.play()
-                        theme.loop = true
-                    }
-                }); 
-            })
-        }
-    });
+	    }
+	});
 }
 
-function setupFinalScreen() {
-    
-    hooray.play()
-    whoosh.play()
+function startButtonAction(){
+	$('#start-button').addClass('disabled')
+	startButtonAnim.play()
+    if(!isMuted){
+	hit.play()
+    }
+    if(isMuted){
+    hit.pause()
+    }
+	var container = $(this).data('container')
+	$('#' + container).fadeOut()
+	setupStoryTellingAnimation()
+
+    if(!isMuted){
+	theme.pause()
+	rhythm.play()
+	rhythm.loop = true
+    }
+    if(!isMuted){
     theme.pause()
-    if(__tokensResponse.playId == 10) crowd.play()
-    
-    $('#final-screen').css({display: 'flex'})
-    var final = {
-        container: document.getElementById("final-screen"),
+    rhythm.pause()
+    }
+
+     /*balance = {
+        container: document.getElementById("balance"),
         renderer: 'svg',
-        loop: true,
+        loop: false,
         autoplay: false,
         rendererSettings: {
             progressiveLoad:false
         },
 
-        animationData: jsons.winning
+        animationData: JSONS.balance
     }
 
-    jsons.winning.layers[0].ef[__tokensResponse.playId - 1].ef[0].v.k = 1
-    jsons.winning.layers[13].t.d.k[0].s.t = ""+parseInt(slider.value)+"";
-    jsons.winning.layers[14].t.d.k[0].s.t = ""+__tokensResponse.totalPoints
-    
-    var finalAnim = bodymovin.loadAnimation(final)
-    finalAnim.play()
+    balanceAnim = bodymovin.loadAnimation(balance)*/
 
-    $('#final-screen').click(function() {
-        $(this).addClass('disabled')
-        hit.play()
-        setTimeout(function(){
-            var mainURL = location.protocol + '//' + location.host + location.pathname
-            window.location.href = mainURL+ "?no-init=true&isMuted=" + isMuted
-        },500)
+    var playButton = {
+        container: document.getElementById("tokens-button"),
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        rendererSettings: {
+            progressiveLoad:false
+        },
+
+        animationData: JSONS.playButton
+    }
+    playButtonAnim = bodymovin.loadAnimation(playButton)
+}
+
+function setupMapScreen() {
+	
+	JSONS.map.layers[0].ef[playID - 1].ef[0].v.k = 1
+	JSONS.map.layers[1].t.d.k[0].s.t = slider.value + ""
+	JSONS.map.layers[2].t.d.k[0].s.t = pointsWon + ""
+
+	var map = {
+        container: document.getElementById("map-screen"),
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        rendererSettings: {
+            progressiveLoad:false
+        },
+
+        animationData: JSONS.map
+    }
+    mapAnim = bodymovin.loadAnimation(map)
+    if(!isMuted){
+    mapSound.play()
+    }
+    if(isMuted){
+    mapSound.pause()
+    }
+    var arrayFrame = (playID == 10) ? [0, 92] : [0, 170]
+    mapAnim.playSegments(arrayFrame, true);
+    $('#map-screen').css({zIndex: 99})
+
+	
+    if(playID == 10) {
+		
+		JSONS.jackpot.layers[13].t.d.k[0].s.t = pointsWon + ""
+		JSONS.jackpot.layers[11].t.d.k[0].s.t = tokensToPlay + ""
+
+		var jackpot = {
+	        container: document.getElementById("jackpot-screen"),
+	        renderer: 'svg',
+	        loop: false,
+	        autoplay: false,
+	        rendererSettings: {
+	            progressiveLoad:false
+	        },
+
+	        animationData: JSONS.jackpot
+	    }
+	    var jackpotAnim = bodymovin.loadAnimation(jackpot)
+
+        var confetti = {
+            container: document.getElementById("confetti"),
+            renderer: 'svg',
+            loop: true,
+            autoplay: false,
+            rendererSettings: {
+                progressiveLoad:false
+            },
+
+            animationData: JSONS.confetti
+        }
+        confettiAnim = bodymovin.loadAnimation(confetti)
+
+        setTimeout(function() {
+        	if(playID == 10) {
+        		mapSound.volume = 0
+        	}
+        }, 5000)
+
+	    $('#jackpot-screen').css({zIndex: 99})
+
+		mapAnim.addEventListener('complete', function(){
+			$('#map-screen').fadeOut()
+			jackpotAnim.play()
+            if(!isMuted){
+			jackpotSound.play()
+            }
+            if(isMuted){
+            jackpotSound.pause()
+            }
+			confettiAnim.play()
+		    setTimeout(function(){
+				$('#jackpot-screen').click(function() {
+					restartGame()	
+				})
+		    },5000)
+		})
+    } else {
+	    setTimeout(function(){
+			$('#map-screen').click(function() {
+				restartGame()	
+			})
+	    },5000)
+    }
+}
+
+function restartGame() {
+    setTimeout(function(){
+        var mainURL = location.protocol + '//' + location.host + location.pathname
+        window.location.href = mainURL+ "?no-init=true&isMuted=" + isMuted
+    },500)
+}
+
+function tokensButtonAction(){
+	$('.tokens-button').addClass('disabled')
+    if(!isMuted){
+     hit.play()   
+    }
+	if(isMuted){
+     hit.pause()   
+    }
+	var container = $(this).data('container')
+	$('#' + container).fadeOut()	
+
+    if(!isMuted){
+	rhythm.pause()
+	theme.play()
+	theme.loop = true
+    }
+    if(isMuted){
+    rhythm.pause()
+    theme.pause()
+    }
+
+	tokensToPlay = parseInt( $("#tokens-amount").text() )
+	$('#tokens-to-play').text( slider.value )	
+
+    $.ajax({
+        type: "POST", 
+        url: "https://qa.staging.snowfly.com/gameapi/v1/playGame", 
+        //data: { tokens: tokensToPlay, gameId: _gameID },
+        data: { tokens: slider.value, gameId: _gameID },
+        success: function( data ) {
+            playID = data.playId;
+            pointsWon = data.totalPoints;
+            tokensPlayed = tokensToPlay;
+            runGamePlay()
+        }
+    });                
+}
+
+function runGamePlay(){
+
+	rhythm.pause()
+
+	playButtonAnim.play()
+	gameplay = {
+	    container: document.getElementById("gameplay"),
+	    renderer: 'svg',
+	    loop: true,
+	    prerender: false,
+	    autoplay: false,
+	    autoloadSegments: false,
+	    rendererSettings: {
+	        progressiveLoad: false
+	    },
+
+	    animationData: JSONS.gamePlay
+	}
+
+	gameplayAnim = bodymovin.loadAnimation(gameplay)
+	JSONS.gamePlay.layers[3].layers[1].ks.r.k[0].e = [degrees[playID - 1]]
+	gameplayAnim.playSegments([0,39], true);
+
+   	var RAD2DEG = 180 / Math.PI;            
+    var dial = $("#wheel");
+    dial.centerX = dial.offset().left + dial.width()/2;
+    dial.centerY =  dial.offset().top + dial.height()/2;
+    
+   
+    var offset, dragging = false;
+    dial.mousedown(function(e) {
+      dragging = true;
+      offset = Math.atan2(dial.centerY - e.pageY, e.pageX - dial.centerX);
+      if(!isMuted){
+      rope.play()
+      theme.play()
+	  rhythm.pause()
+      rope.loop = true}
+      if(isMuted){
+      rope.pause()
+      theme.pause()
+      rhythm.pause()
+      }
+    })
+
+	$('.spin-button-container').addClass('flex-v')
+	
+	var spinButton = {
+	    container: document.getElementById("spin-button"),
+	    renderer: 'svg',
+	    loop: false,
+	    prerender: false,
+	    autoplay: false,
+	    autoloadSegments: false,
+	    rendererSettings: {
+	        progressiveLoad: false
+	    },
+
+	    animationData: JSONS.spinButton
+	}
+	var spinButtonAnim = bodymovin.loadAnimation(spinButton)
+	
+	$('#spin-button').click(function(){
+		spinButtonAnim.play()		
+		$(this).fadeOut()
+		if (!isGamePlayPlayed) gamePlayFunc()
+	})
+	
+	if (!detectmob() ){ 
+	    $(document).mouseup(function() {
+			$("#spin-button").css({pointerEvents: 'none'})
+			$("#spip-button").addClass('disabled')
+	    	if(!draggOff) {
+				if (!isGamePlayPlayed) gamePlayFunc()
+	    	}
+	    })		
+	}
+
+    $(document).mousemove(function(e) {
+      if (dragging) { 
+        
+        var newOffset = Math.atan2(dial.centerY - e.pageY, e.pageX - dial.centerX);
+        var r = (offset - newOffset) * RAD2DEG;
+        
+        dial.css({
+        	'-webkit-transform': 'rotate(' + r + 'deg)',
+        	'-ms-transform': 'rotate(' + r + 'deg)',
+        	'transform': 'rotate(' + r + 'deg)'
+        });
+      }
     })
 }
 
-function getRandomIndex() {
-    return  Math.floor((Math.random() * 18) + 1);
+function gamePlayFunc(){
+	draggOff = true
+	isGamePlayPlayed = true
+	$("#wheel").css({pointerEvents: 'none'})
+    if(!isMuted){
+       rope.pause()
+       theme.play() 
+    }
+    if(isMuted){
+       rope.pause()
+       theme.pause() 
+    }
+	
+	if (!dragged){
+      	dragging = false
+      	setTimeout(function(){  
+      		dragged = true  
+      	}, 3500)
+      	var rotation = $("#wheel").css('transform')
+      	var values = rotation.split('(')[1],
+	    	values = values.split(')')[0],
+	    	values = values.split(',');
+
+		var b = values[1];
+
+		var angle = Math.round(Math.asin(b) * (180/Math.PI));
+		gameplayAnim.loop = false
+		gameplayAnim.playSegments([40, 294], false);
+		gameplayAnim.addEventListener('complete', function(){
+			gameplayAnim.loop = false
+			if(dragged){
+		    	$('#tokens-to-play-container, .tokens-text-view, .points-text-view').fadeOut(function(){
+		    		$(this).remove()
+		    	})
+				setupMapScreen()
+				theme.pause()
+				if (!finalSetted) finalSetted = true
+				$('#final-button').click(restartGame)
+			} else { setTimeout(function(){ 
+				post    
+				$('#support').css({opacity: 0}) }, 1800) }
+		});
+	}
+}
+
+function updateDraggableValue(val){
+    var value = parseInt(val)
+    var newValue
+    
+    if(value <= 92){
+        newVal = value * 10 / 92 
+    }
+    if(value > 92 && value <= 204){
+        newVal = ((value - 92) * (50 * 1.5) / 204) + 10 
+    }
+    if(value > 204){
+        newVal = ((value - 204) * (250 + 245) / 344) + 50 
+    }
+    if(newVal > 250){ 
+        newVal = 250
+    }
+
+    if(newVal < 1) newVal = 1
+    if(newVal > _userData.tokenBalance) newVal = _userData.tokenBalance
+    $('#tokens-amount').text(parseInt(newVal))
+}
+function detectmob() { 
+	 if( navigator.userAgent.match(/Android/i)
+	 || navigator.userAgent.match(/webOS/i)
+	 || navigator.userAgent.match(/iPhone/i)
+	 || navigator.userAgent.match(/iPad/i)
+	 || navigator.userAgent.match(/iPod/i)
+	 || navigator.userAgent.match(/BlackBerry/i)
+	 || navigator.userAgent.match(/Windows Phone/i)){
+	    return true;
+	 } else {
+	    return false;
+	 }
 }
 
 function getParameterByName(name, url) {
@@ -268,20 +646,15 @@ function getParameterByName(name, url) {
 }
 
 function setSoundSettings() {
-    if(!isMuted) {$('.sound-control').attr('src','./assets/img/sound_on.png')}
-    else {$('.sound-control').attr('src','./assets/img/sound_off.png')}
+    if(!isMuted) {$('.sound-toggle').attr('src','./images/sound_on.png')}
+    else {$('.sound-toggle').attr('src','./images/sound_off.png')}
 
-    hit.volume = (isMuted) ? 0 : 1
-    prize.volume = (isMuted) ? 0 : 1
-    crowd.volume = (isMuted) ? 0 : 1
-    whoosh.volume = (isMuted) ? 0 : 1
-    pregame.volume = (isMuted) ? 0 : 1
-    theme.volume = (isMuted) ? 0 : 1
-    hooray.volume = (isMuted) ? 0 : 1
-}
-
-function loading(){
-
-
-    init();
+	prize.volume = (isMuted) ? 0 : 1
+	whoosh.volume = (isMuted) ? 0 : 1
+	crowd.volume = (isMuted) ? 0 : 1
+	rhythm.volume = (isMuted) ? 0 : 1
+	rope.volume = (isMuted) ? 0 : 1
+	theme.volume = (isMuted) ? 0 : 1
+	post.volume = (isMuted) ? 0 : 1
+	hit.volume = (isMuted) ? 0 : 1
 }
