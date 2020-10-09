@@ -707,14 +707,6 @@ p#tokens, p#points {
   opacity: 0;
   pointer-events: none;
 }
-
-#wheel{
-  /*background-image: url('../svg/wheel.svg');*/
-  background-position: center;
-  background-repeat: no-repeat;
-  transform: rotate(0);
-  cursor: pointer; }
-
 #gameplay{
   position: absolute; 
   top: 0;}
@@ -832,13 +824,11 @@ p.container {
 
 
 #wheel {
-    background-image: url(../svg/wheel.svg);
+    /*background-image: url(../svg/wheel.svg);*/
     background-position: center;
     background-repeat: no-repeat;
     transform: rotate(0);
     cursor: pointer;
-    width: 10px !important;
-    height: 10px !important;
     padding-bottom: 20px !important;
 }
 
