@@ -1,668 +1,864 @@
+/*
+  * Fruit Scratch Game | Infrastructure 2020
+  * Snowfly Game Room
+  * 
+*/
+
 var _userData;
 var _gameID = 999;
-var isMuted = false
-var playID;
+var loadingScreen;
 var slider;
-var dragging = false;
-var dragged = false;
-var tokensToPlay;
-var pointsWon;
-var gameplay;
-var draggOff = false
-var gameplayAnim;
-var finalSetted = false
-var finalAnimation;
-var balance;
+var _tokensToPlay = 1;
 var __tokensResponse;
-var startButtonAnim, playButtonAnim;
-var isGamePlayPlayed = false
-var hit, prize, whoosh, crowd, rhythm, rope, theme, post, jackpotSound, mapIntroSound, mapSound, pageFlip;
-var pricesKeys = ["flag", "compass", "sword", "bananas", "lifevest", "anchor", "treasure", "canon", "parrot", "monkey ", "treasure"]
+var startScreen;
+var balance;
+var gameplay;
+var isMuted = false;
+var isReady = true;
+let playID //= Math.floor(Math.random() * 10) + 1;
+var winningLine =  Math.floor((Math.random() * 8));
+var matrix;
+var winningFruit;
+var winningFx;
+var fruitPicked = {};
+var animationsArray = [];
+var coinsArray = [];
+var fxArray = [];
+var fruits = ['tangerine', 'pear', 'strawberry', 'cherry', 'watermelon', 'apple', 'orange', 'banana', 'grapes', 'logobox'];
+var fruitSpot = {};
+var coinSpot = {};
+var tagSpot = {};
+var fruitsFound = 0;
+var fx;
 
 
-var degrees = [324, 216, 288, 180, 144, 108, 0, 36, 72, 252]
+// Building up the possible matrices:
 
-function setupSounds() {
-	prize = document.getElementById('prize')
-	whoosh = document.getElementById('whoosh')
-	crowd = document.getElementById('crowd')
-	rhythm = document.getElementById('rhythm')
-	rope = document.getElementById('rope')
-	theme = document.getElementById('theme')
-	post = document.getElementById('post-spin')
-	hit = document.getElementById('hit')
-	//New sounds
-	jackpotSound = document.getElementById('jackpot')
-	mapIntroSound = document.getElementById('map_intro')
-	mapSound = document.getElementById('map')
-	pageFlip = document.getElementById('page-flip')
+switch (winningLine) {
+
+  case 0: 
+    matrix = [1,1,1,
+              0,0,0,
+              0,0,0];
+    break;
+  case 1: 
+    matrix = [0,0,0,
+              1,1,1,
+              0,0,0];
+     break;
+  case 2:
+    matrix = [0,0,0,
+              0,0,0,
+              1,1,1];
+     break;
+  case 3:
+    matrix = [1,0,0,
+              1,0,0,
+              1,0,0];
+     break;
+  case 4:
+    matrix = [0,1,0,
+              0,1,0,
+              0,1,0];
+     break;
+  case 5:
+    matrix = [0,0,1,
+              0,0,1,
+              0,0,1];
+     break;
+  case 6:
+    matrix = [1,0,0,
+              0,1,0,
+              0,0,1];
+     break;
+   case 7:
+     matrix = [0,0,1,
+               0,1,0,
+               1,0,0]
+     break;
+   default: null 
 }
 
-function init(){
 
-    $('#loading-message').css('z-index', '-99');
-    $('#load').text(" ");
 
-    var startButton = {
-        container: document.getElementById("start-button"),
-        renderer: 'svg',
-        loop: false,
-        autoplay: false,
-        rendererSettings: {
-            progressiveLoad:false
-        },
 
-        animationData: JSONS.startButton
+// Shuffling function:
+
+function setGamePlay(playID){
+
+if(!isMuted){
+  themeSound.pause();
+  gamePlaySound.play();
+}
+
+if(isMuted){
+    themeSound.pause();
+  gamePlaySound.pause();
+}
+
+  function shuffle(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
     }
-    startButtonAnim = bodymovin.loadAnimation(startButton)
+  }
+
+
+  // Extracting the fruit jsons:
+
+  var fruitObj, x;
+  fruitsArray = [];
+  for (i = 0; i <= 9; i++) {
+    x = fruits[i];
+    fruitObj = frutas[x];
+    fruitsArray.push(fruitObj);
+  }
+
+
+  // Picking the winning fruit from the array and splicing it out:
+
+  winningFruit = fruitsArray[playID-1];
+  fruitsArray.splice(playID-1, 1);
+
+
+  // Shuffling the array of the remaining non-winning fruits:
+
+  shuffle(fruitsArray);
+
+
+  // Shape replacer and positioning functionality:
+
+  function replaceShapes (base, toObj) {
+
+    base.layers[0] =  toObj.layers[0];
+    var position = nulls.position.layers[i-1].ks.p.k;
+    base.layers[0].ks.p.k = position
+
+  }
+
+
+  // Placing fruits into the screen:
+
+
+  function placeFruits() {
+
+    var fruitCloned;
+    for (i = 1; i <= 9; i++) {
+    
+      // Picking the fruit and the winfx based on the matrix:
+
+      fruitPicked = (matrix[i-1] == 1) ? winningFruit : fruitsArray.pop();
+      (matrix[i-1] == 1) ? assets.winFX.layers[0].ef[i-1].ef[0].v.k = 1 : assets.winFX.layers[0].ef[i-1].ef[0].v.k = 0;
+
+
+      // Adding a clone fruit to the non-winner ones to give the game some unpredictability
+
+      if (!matrix[i-1] == 1) {
+
+        if (i == 4 || i == 6  || i == 8 ) {
+          fruitCloned = fruitPicked
+        } 
+        else if (i == 5 || i == 7 ||  i == 9) {
+          if (fruitCloned == undefined) {
+            fruitPicked = fruitPicked
+          } else {
+            fruitPicked = fruitCloned
+          }
+          
+        }
+        else {
+          fruitPicked = fruitPicked
+        }
+      
+      }
+
+
+      // Replacing its shapes into the given precomp:
+      
+      replaceShapes(precomps['p' + i], fruitPicked);
+
+  
+      // Setting up the fruits into the lottie player:
+
+      setFruits(i)
+
+    };
+
+
+    // Showing the winning fruit and the text in the winning screen:
+
+    var wfLayers = winningFruit.layers;
+    var position = assets.winning.layers[0].ks.p.k;
+    var winningLayers = assets.winning.layers;
+
+    winningLayers.splice(0, 1, ...wfLayers);
+    winningLayers[0].ks.p.k = position;
+    winningLayers[0].parent = 2;
+    winningLayers[2].ef[playID-1].ef[0].v.k = 1
+
+    
+    // Tokens Played:
+
+    assets.winning.layers[19].t.d.k[0].s.t = __tokensResponse.totalPoints+"";
+    
+    // Points Won:
+
+    assets.winning.layers[18].t.d.k[0].s.t = parseInt(slider.value)+"";
+  
+  
+
+  }
+
+
+
+  // HTML and Lottie:
+
+  function setFruits(index) {
+
+  // Fruits:
+
+    var animation = {
+      container: document.getElementById('place-' + index),
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      rendererSettings: {
+          progressiveLoad: false
+      },
+
+      animationData: precomps['p' + index]
+    }
+
+    animationsArray.push(lottie.loadAnimation(animation));
+
+
+
+  // Coins:
+
+    var coinAnimation = {
+    container: document.getElementById('coin-' + index),
+    renderer: 'svg',
+    loop: false,
+    autoplay: false,
+    rendererSettings: {
+        progressiveLoad: false
+    },
+
+    animationData: coins['coin' + index]
+    }
+
+    coinsArray.push(lottie.loadAnimation(coinAnimation))
+
+  }
+
+
+  // Lottie instancing:
+
+  function setGamePlay () {
+
+  
+    // Token Balance minus Tokens Played:
+
+    assets.gameplay_bg.layers[0].t.d.k[0].s.t = ""+(_userData.tokenBalance - slider.value);
+
+    // Point Balance:
+
+    assets.gameplay_bg.layers[1].t.d.k[0].s.t = ""+_userData.pointBalance;
+
+    // Background:
+
+    var gameBG = {
+      container: document.getElementById('gameBG'),
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      rendererSettings: {
+          progressiveLoad: false
+      },
+    
+      animationData: assets.gameplay_bg
+    }
+    
+    lottie.loadAnimation(gameBG);
+
+    // win Fx:
+
+    var fxAnimation = {
+      container: document.getElementById('win-fx'),
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      rendererSettings: {
+          progressiveLoad: false
+      },
+    
+      animationData: assets.winFX
+    }
+
+    fx = lottie.loadAnimation(fxAnimation);
+
+  }
+
+  // Grouping up the loaded instances of Lottie:
+
+  function setSpot () {
+    var i;
+      for (i=0; i<=8; i++) {
+        fruitSpot['s'+ i] = animationsArray[i];
+        coinSpot['c' + i] = coinsArray[i]
+      }
+    }
+
+
+  // Building up the Game Play screen:
+
+  placeFruits();
+  setGamePlay();
+  setSpot();
+  
+  // Dealing with more Lottie instances:
+
+  var winningParams = {
+    container: document.getElementById("winning"),
+    renderer: 'svg',
+    loop: false,
+    autoplay: false,
+    rendererSettings: {
+        progressiveLoad:false
+    },
+  
+    animationData: assets.winning
+  }
+  
+  var winningAnim = lottie.loadAnimation(winningParams)
+
+  
+  var celParams = {
+    container: document.getElementById("cel"),
+    renderer: 'svg',
+    loop: false,
+    autoplay: false,
+    rendererSettings: {
+        progressiveLoad:false
+    },
+  
+    animationData: assets.celebration
+  }
+  
+  var celAnim = lottie.loadAnimation(celParams)
+
+  var tagAsset = {
+  container: document.getElementById("asset"),
+  renderer: 'svg',
+  loop: true,
+  autoplay: true,
+  rendererSettings: {
+      progressiveLoad:false
+  },
+
+  animationData: assets.tags
+  }
+
+  bodymovin.loadAnimation(tagAsset)
+
+
+  // Creating fake divs to catch the clicks on the spots:
+
+  function appendFakeDivs() {
+
+    for(var i = 1; i <= 9; i++) {
+
+      
+      // Retrieving the position from the 'cl' parameter of the layer:
+
+      var assetPosition = $('.spot-' + i).position();
+
+
+      // Creating and styling the divs on the fly:
+
+      var divString = "<div class='tag' id='tag-" + i + "'></div>";
+      var leftMargin = $('.main-container').position().left;
+      
+      $('#game-screen').append(divString)
+      $('#tag-' + i).css({
+        position: 'absolute',
+        //cursor: 'pointer',
+        height: '15%',
+        width: '15%',
+        left: ((assetPosition.left - leftMargin) + 10) + "px",
+        top: (assetPosition.top + 10) + "px",
+        zIndex: 1100
+      })
+
+      tagSpot['t'+ i] = document.getElementById('tag-'+i)
+    
+    } 
+    
+  }
+
+
+  appendFakeDivs();
+
+  
+  $('.tag').click(function () {
+  
+  if(!isMuted){
+  scratching.play()
+  }
+  if(isMuted){
+  scratching.pause()
+  }
+  setTimeout(function(){
     if(!isMuted){
-	theme.play()
-	theme.loop = true
+    scratching.pause()
+    whoosh.play()
     }
     if(isMuted){
-    theme.pause()
+    scratching.pause()
+    whoosh.pause()
+    }
+  }, 2000)
+    // Retrieving the index of each div:
+
+    var selectedIndex = $(this).attr('id').split('-')[1] - 1 
+    console.log(selectedIndex)
+    coinSpot['c'+ selectedIndex].play();
+    fruitSpot['s'+ selectedIndex].play();
+    (matrix[selectedIndex] == 1) ? fruitsFound++ : fruitsFound;
+
+    setTimeout(function(){ if (fruitsFound == 3) {
+
+      fx.play();
+
+      setTimeout(function(){
+        gameWon()
+
+        $('#play-again').fadeIn()
+        playAgain()
+        //$('#play-again').click(function(){window.location.reload()})
+      }, 1200 )
+      setTimeout(function(){
+      if(!isMuted){
+      prize.play()
+      gamePlaySound.pause()
+      }
+      if(isMuted){
+        prize.pause()
+        gamePlaySound.pause()
+      }
+      }, 1000)
+      if(playID == 10){
+        setTimeout(function(){
+          if(!isMuted){
+            crowd.play()
+          }
+          if(isMuted){
+            crowd.pause()
+          }
+        }, 1000)
+      }
+
+    } else {
+
+      fx.stop()
+
+    }}, 2000 )
+
+  });
+
+  
+  // Winning Screen:
+
+  function gameWon() {
+    
+    $('.tag').css({zIndex: 0});
+
+    winningAnim.play();
+    
+    if (playID == 10) {
+      celAnim.play()
+    } else {
+      celAnim.stop()
     }
 
+  }
 
-    $('loading-message').hide();
-    $('.layer, .main-container').css({
-	    height: ($('.layer').width() * 400 / 560) + "px", 
-        maxHeight: window.innerHeight + "px",
-        maxWidth: ($(window).height() * 560 / 400) + "px"
-    })
+}
+
+// Init:
+
+function init() {
+
+  if (isReady) {
+    hit = document.getElementById('hit');
+    whoosh = document.getElementById('whoosh');
+    prize = document.getElementById('prize');
+    breakSound = document.getElementById('break');
+    crowd = document.getElementById('crowd');
+    themeSound = document.getElementById('theme-song');
+    gamePlaySound = document.getElementById('gamplay-theme');
+    scratching =  document.getElementById('scratching');
+    slider = document.getElementById('myRange');
+
+    if(!isMuted){
+    themeSound.loop = true
+    themeSound.play()
+    }
+    if(isMuted){
+      themeSound.pause()
+      themeSound.loop = false
+    }
 
     $('.sound-toggle').click(function(){
-    	hit.play()
         isMuted = !isMuted
         setSoundSettings()
     })
 
-	var sizeValue = $('.layer').height() * .62
-    $("#wheel").width(sizeValue).height(sizeValue)
-
-    initializeUserData()
-    
-    $('#start-button').click(startButtonAction)
-    $('#tokens-button').click(tokensButtonAction)
-    $('#skip-button').click(skipButtonAction)
-
-
-    $('#bar').click(function(e){
-        var distanceA = ($('body').width()/2) - ($('.layer').width()/2)
-        var distanceB = ($('.layer').width()/2) - ($('#token-ui').width()/2)
-        var distanceC = ($('#token-ui').width()/2) - ($('#bar').width()/2)
-        var value = e.clientX - (distanceA + distanceB + distanceC) - ($('.draggable').width()/2)
-        $('.draggable').css({left: value})
-        updateDraggableValue($('.draggable').css('left'))
+        $('.questionmark').click(function(){
+        $('#prices').css({zIndex: 2000, opacity: 1})
+        $('#prices').click(function(){
+            $('#prices').css({opacity: 0, zIndex: 0})
+        })
     })
 
-    $('.draggable').draggable({ 
-        axis: "x",
-        containment: "#bar",
-        start: function() {
-            updateDraggableValue($('.draggable').css('left'))
-        },
-        drag: function() {
-            updateDraggableValue($('.draggable').css('left'))
-        },
-        stop: function() {
-            updateDraggableValue($('.draggable').css('left'))
+
+    $('#play-again').fadeOut();
+
+
+    // API Call:
+
+    $.ajax({
+
+      type: "POST", 
+      url: "http://qa.staging.snowfly.com/gameapi/v1/getStartInfo",
+      
+      data: { gameId: _gameID },
+
+      success: function( data ) {
+
+      __tokensResponse = data.playId;
+      _userData = data;
+      
+
+      // Token Balance:
+
+      assets.tokenScreen.layers[0].t.d.k[0].s.t = _userData.tokenBalance+"";
+
+      // Point Balance:
+
+      assets.tokenScreen.layers[1].t.d.k[0].s.t = _userData.pointBalance+"";
+
+      // Slider Validation:
+
+      if (_userData.tokenBalance < 250) {
+        slider.max = _userData.tokenBalance;
+        assets.tokenScreen.layers[4].t.d.k[0].s.t = slider.max+""; 
+      } else {
+        slider.max = 250;
+        assets.tokenScreen.layers[4].t.d.k[0].s.t = slider.max+"";
+      }
+
+          
+      if (_userData.tokenBalance > 0){   
+        $('#no-tokens-screen').css({display: 'none'}) 
         }
+    
+
+      if(_userData.status == 0){
+          setTimeout(function (){
+          $('#about').fadeOut()
+          $('#t-s').text(_userData.message)
+          $('#no-server-request').fadeIn()
+          },1000) 
+          }
+          
+      
+      balanceAnim = lottie.loadAnimation(balance)
+      
+
+      slider.oninput = function() {
+        
+            tokensJAnim.renderer.elements[0].updateDocumentData({
+                t: Math.round(slider.value)+"", s: 30
+            });
+    
+        tokensJAnim.play();
+
+      }
+    
+
+      function updateTrackColor () {
+          if (_userData.tokenBalance < 50) {
+              x = slider.value * 100 / _userData.tokenBalance 
+              var linear = -(100) + ((x-0)/(100-0)) * (100-(-(100)))
+              x = linear
+          } else if (_userData.tokenBalance >= 50 && _userData.tokenBalance <= 250) {
+              x = slider.value * 100 / _userData.tokenBalance
+          } else {
+              x = slider.value * 100 / 250
+          }
+          var color = 'linear-gradient(90deg, rgb(32,229,98)' + x + '%, rgb(214,214,214)' + x + '%)';
+          slider.style.background = color
+      }
+
+      slider.addEventListener('mousemove', updateTrackColor);
+      slider.addEventListener('touchmove', updateTrackColor);
+
+
+      }
+      
     });
 
-    if(window.location.href.match("no-init") != null){ 
-    	isMuted = (getParameterByName('isMuted') == 'true');
-        setSoundSettings()
-    	$('#start-button').trigger('click') 
-    	$('#skip-button').trigger('click') 
+    
+
+
+    $('.layer').css({
+	    height: ($('.layer').width() * 720 / 720) + "px", 
+        maxHeight: window.innerHeight + "px",
+        maxWidth: ($(window).height() * 720 / 720) + "px"
+    })
+
+    $('.super-container').css({
+        maxWidth: ($(window).height() * 720 / 720) + "px"
+    })
+
+    document.addEventListener('touchmove', function(e){
+      e.preventDefault();
+    })
+
+    $('#loading-screen').fadeOut()
+
+    var animation = {
+      container: document.getElementById('instructions'),
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      rendererSettings: {
+          progressiveLoad:false
+      },
+    animationData: gameJSONs.instructions
     }
+
+    var startScreen = {
+      container: document.getElementById("start-screen"),
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      rendererSettings: {
+          progressiveLoad:false
+      },
+
+      animationData: assets.startScreen
+    }
+
+    var startScreenAnim = lottie.loadAnimation(startScreen)
+    startScreenAnim.play()
+
+    var startButton = {
+      container: document.getElementById("start-button"),
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      rendererSettings: {
+          progressiveLoad:false
+      },
+
+      animationData: gameJSONs.startButton
+    }
+
 
     balance = {
-        container: document.getElementById("balance"),
-        renderer: 'svg',
-        loop: false,
-        autoplay: false,
-        rendererSettings: {
-            progressiveLoad:false
-        },
+      container: document.getElementById("balance"),
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      rendererSettings: {
+          progressiveLoad:false
+      },
 
-        animationData: JSONS.balance
+      animationData: assets.tokenScreen
+   } 
+
+
+    var tokensJ = {
+      container: document.getElementById("tokens-amount"),
+      renderer: 'svg',
+      loop: true,
+      autoplay: false,
+      rendererSettings: {
+          progressiveLoad:false
+      },
+
+      animationData: gameJSONs.tokensToPlay
     }
-
-    //balanceAnim = bodymovin.loadAnimation(balance)
-
-            var tokensJ = {
-        container: document.getElementById("tokens-amount"),
-        renderer: 'svg',
-        loop: true,
-        autoplay: false,
-        rendererSettings: {
-            progressiveLoad:false
-        },
-
-        animationData: JSONS.tokensToPlay
-    }
+  
+    // Tokens to play Text Layer Functionality:
 
     tokensJAnim = lottie.loadAnimation(tokensJ)
     tokensJAnim.addEventListener("DOMLoaded", function() {
-        
-         tokensJAnim.renderer.elements[0].updateDocumentData({t: slider.value+"", s:120});
-         //tokensJAnim.play()
+    
+      tokensJAnim.renderer.elements[0].updateDocumentData({t: slider.value+"", s:120});
+  
+    });
+
+    $('#instructions').click(function(){
+     
+    $('#instructions').fadeOut(function(){
+        $('#instructions').css({zIndex: 2000})
+    })
+    })
+
+    setTimeout(function(){
+      $('#instructions').fadeOut(function(){
+          $('#instructions').css({zIndex: 0})
+      })
+    },3500)
+
+    $('#start-button').click(function(){
+      $(this).addClass('disable')
+        startButtonAnim.play()
+        if(!isMuted){
+        hit.play()
+        }
+        if(isMuted){
+          hit.pause()
+        }
+        setupInitLayers()
+    })
+
+    var startButtonAnim = bodymovin.loadAnimation(startButton)
+
+      if(window.location.href.match("no-init") != null){
+        isMuted = (getParameterByName('isMuted') == 'true');
+        setSoundSettings()
+        startButtonAnim.playSegments([1, 10], true)
+        $('#init-screen').fadeOut(function(){
+            setupInitLayers()
+      })
+    } 
+  
+  } 
+
+}
+
+function playAgain(){
+    $('#play-again').click(function(){
+      $(this).addClass('disabled')
+      if(isMuted == 0){
+          hit.play()
+      }
+      if(isMuted){
+        hit.pause()
+      }
+      setTimeout(function(){
+          var mainURL = location.protocol + '//' + location.host + location.pathname
+          window.location.href = mainURL+ "?no-init=true&isMuted=" + isMuted
+          $('#s-layer').hide();
+
+      },500)
+  }) 
+}
+
+function setupInitLayers(){
+    setTimeout(function(){$('.init-screen').css({zIndex: -1})}, 500)
+
+    $('#init-screen').fadeOut()
+    
+    var playButton = {
+      container: document.getElementById("play-button"),
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      rendererSettings: {
+          progressiveLoad:false
+      },
+
+      animationData: assets.playButton
+    }
+    var playButtonAnim = bodymovin.loadAnimation(playButton)
+
+    $('#play-button').click(function(){
+      $(this).addClass('disable')
+      $('#token-screen').fadeOut()
+        $(this).css({opacity: 0.5, pointerEvents: 'flex'})
+        playButtonAnim.play()
+        if(!isMuted){
+        hit.play()
+        }
+        if(isMuted){
+        hit.pause()
+        }
+          isPlayClicked = true
+          $.ajax({
+          type: "POST", 
+          url: "http://qa.staging.snowfly.com/gameapi/v1/playGame", 
+          data: { tokens: slider.value, gameId: _gameID },
+          success: function( data ) {                
+              playID = data.playId
+              //playID = 10;
+              __tokensResponse = data;
+              setGamePlay(playID);
+            }
+        });               
     });
 
 }
 
-function setupStoryTellingAnimation() {
-    
-    var mapIntro = {
-        container: document.getElementById("storytel-container"),
-        renderer: 'svg',
-        loop: false,
-        autoplay: false,
-        rendererSettings: {
-            progressiveLoad:false
-        },
 
-        animationData: JSONS.mapIntro
-    }
-    var mapIntroAnim = bodymovin.loadAnimation(mapIntro)
-    mapIntroAnim.play()
-    if(!isMuted){
-    mapIntroSound.play()
-    }
-    if(isMuted){
-    mapIntroSound.pause()
-    }
-    mapIntroAnim.addEventListener('complete', function(){
-    	$('#skip-button').trigger('click')
-    })
+function loading(){
 
-    var skipButton = {
-        container: document.getElementById("skip-button"),
-        renderer: 'svg',
-        loop: false,
-        autoplay: false,
-        rendererSettings: {
-            progressiveLoad:false
-        },
 
-        animationData: JSONS.skipButton
-    }
-    var skipButtonAnim = bodymovin.loadAnimation(skipButton)
-    skipButtonAnim.play()
-    
-}
+  var loadingScreen = {
+  container: document.getElementById("loading-screen"),
+  renderer: 'svg',
+  loop: false,
+  autoplay: false,
+  rendererSettings: {
+      progressiveLoad:false
+  },
 
-function skipButtonAction() {
-	var container = $(this).data('container')
-	mapIntroSound.pause()
-    console.log('SKIP')
-	$('#' + container).fadeOut()
-}
+  animationData: assets.loadingScreen
+  }
 
-function initializeUserData(){
+  var loadingScreenAnim = lottie.loadAnimation(loadingScreen)
+  loadingScreenAnim.play();
 
-    slider = document.getElementById('myRange');
-
-    $.ajax({
-
-	    type: "POST", 
-	    url: "https://qa.staging.snowfly.com/gameapi/v1/getStartInfo", 
-	    data: { gameId: _gameID },
-	    success: function( data ) {
-			_userData = data;
-            JSONS.balance.layers[0].t.d.k[0].s.t = _userData.tokenBalance+"";
-            JSONS.balance.layers[1].t.d.k[0].s.t = _userData.pointBalance+"";
-            $(".tokens-text-view > p.container").text(_userData.tokenBalance)
-            $(".points-text-view > p.container").text(_userData.pointBalance)
-			if (_userData.tokenBalance > 0){ $('#no-tokens-screen').css({display: 'none'}) }
-            if(_userData.status == 0)
-            {
-                $('#about').fadeOut()
-                $('#no-server-request').fadeIn()
-                $('#t-s').text(_userData.message)
-            }
-            if (_userData.tokenBalance == 0){ 
-                $('#no-tokens-screen').css({display: 'block', zIndex: 999}) 
-           }
-              if(_userData.status == 0){
-                //$('#t-s').text(_userData.message)
-                //$('#no-server-request').fadeIn()
-                $('#no-tokens-screen').css({display: 'block', zIndex: 1000})
-                }
-
-           
-
-            if (_userData.tokenBalance < 250) {
-                    slider.max = _userData.tokenBalance;
-                    JSONS.balance.layers[10].t.d.k[0].s.t = slider.max+""; 
-                } else {
-                    slider.max = 250;
-                    JSONS.balance.layers[10].t.d.k[0].s.t = slider.max+"";
-                }
-
-            balanceAnim = bodymovin.loadAnimation(balance)
-               
-
-            slider.oninput = function() {
-                
-                    tokensJAnim.renderer.elements[0].updateDocumentData({
-                        t: Math.round(slider.value)+"", s: 30
-                    });
-            
-                tokensJAnim.play();
-
-            }
-           
-
-            function updateTrackColor () {
-                if (_userData.tokenBalance < 50) {
-                    x = slider.value * 100 / _userData.tokenBalance 
-                    var linear = -(100) + ((x-0)/(100-0)) * (100-(-(100)))
-                    x = linear
-                } else if (_userData.tokenBalance >= 50 && _userData.tokenBalance <= 250) {
-                    x = slider.value * 100 / _userData.tokenBalance
-                } else {
-                    x = slider.value * 100 / 250
-                }
-                var color = 'linear-gradient(90deg, rgb(32,229,98)' + x + '%, rgb(214,214,214)' + x + '%)';
-                slider.style.background = color
-            }
-
-            slider.addEventListener('mousemove', updateTrackColor);
-            slider.addEventListener('touchmove', updateTrackColor);
-	    }
-	});
-}
-
-function startButtonAction(){
-	$('#start-button').addClass('disabled')
-	startButtonAnim.play()
-    if(!isMuted){
-	hit.play()
-    }
-    if(isMuted){
-    hit.pause()
-    }
-	var container = $(this).data('container')
-	$('#' + container).fadeOut()
-	setupStoryTellingAnimation()
-
-    if(!isMuted){
-	theme.pause()
-	rhythm.play()
-	rhythm.loop = true
-    }
-    if(!isMuted){
-    theme.pause()
-    rhythm.pause()
-    }
-
-     /*balance = {
-        container: document.getElementById("balance"),
-        renderer: 'svg',
-        loop: false,
-        autoplay: false,
-        rendererSettings: {
-            progressiveLoad:false
-        },
-
-        animationData: JSONS.balance
-    }
-
-    balanceAnim = bodymovin.loadAnimation(balance)*/
-
-    var playButton = {
-        container: document.getElementById("tokens-button"),
-        renderer: 'svg',
-        loop: false,
-        autoplay: false,
-        rendererSettings: {
-            progressiveLoad:false
-        },
-
-        animationData: JSONS.playButton
-    }
-    playButtonAnim = bodymovin.loadAnimation(playButton)
-}
-
-function setupMapScreen() {
-	
-	JSONS.map.layers[0].ef[playID - 1].ef[0].v.k = 1
-	JSONS.map.layers[1].t.d.k[0].s.t = slider.value + ""
-	JSONS.map.layers[2].t.d.k[0].s.t = pointsWon + ""
-
-	var map = {
-        container: document.getElementById("map-screen"),
-        renderer: 'svg',
-        loop: false,
-        autoplay: false,
-        rendererSettings: {
-            progressiveLoad:false
-        },
-
-        animationData: JSONS.map
-    }
-    mapAnim = bodymovin.loadAnimation(map)
-    if(!isMuted){
-    mapSound.play()
-    }
-    if(isMuted){
-    mapSound.pause()
-    }
-    var arrayFrame = (playID == 10) ? [0, 92] : [0, 170]
-    mapAnim.playSegments(arrayFrame, true);
-    $('#map-screen').css({zIndex: 99})
-
-	
-    if(playID == 10) {
-		
-		JSONS.jackpot.layers[13].t.d.k[0].s.t = pointsWon + ""
-		JSONS.jackpot.layers[11].t.d.k[0].s.t = tokensToPlay + ""
-
-		var jackpot = {
-	        container: document.getElementById("jackpot-screen"),
-	        renderer: 'svg',
-	        loop: false,
-	        autoplay: false,
-	        rendererSettings: {
-	            progressiveLoad:false
-	        },
-
-	        animationData: JSONS.jackpot
-	    }
-	    var jackpotAnim = bodymovin.loadAnimation(jackpot)
-
-        var confetti = {
-            container: document.getElementById("confetti"),
-            renderer: 'svg',
-            loop: true,
-            autoplay: false,
-            rendererSettings: {
-                progressiveLoad:false
-            },
-
-            animationData: JSONS.confetti
-        }
-        confettiAnim = bodymovin.loadAnimation(confetti)
-
-        setTimeout(function() {
-        	if(playID == 10) {
-        		mapSound.volume = 0
-        	}
-        }, 5000)
-
-	    $('#jackpot-screen').css({zIndex: 99})
-
-		mapAnim.addEventListener('complete', function(){
-			$('#map-screen').fadeOut()
-			jackpotAnim.play()
-            if(!isMuted){
-			jackpotSound.play()
-            }
-            if(isMuted){
-            jackpotSound.pause()
-            }
-			confettiAnim.play()
-		    setTimeout(function(){
-				$('#jackpot-screen').click(function() {
-					restartGame()	
-				})
-		    },5000)
-		})
-    } else {
-	    setTimeout(function(){
-			$('#map-screen').click(function() {
-				restartGame()	
-			})
-	    },5000)
-    }
-}
-
-function restartGame() {
     setTimeout(function(){
-        var mainURL = location.protocol + '//' + location.host + location.pathname
-        window.location.href = mainURL+ "?no-init=true&isMuted=" + isMuted
-    },500)
-}
 
-function tokensButtonAction(){
-	$('.tokens-button').addClass('disabled')
-    if(!isMuted){
-     hit.play()   
-    }
-	if(isMuted){
-     hit.pause()  
-    }
-	var container = $(this).data('container')
-	$('#' + container).fadeOut()	
+        init();
 
-    if(!isMuted){
-	rhythm.pause()
-	theme.play()
-	theme.loop = true
-    }
-    if(isMuted){
-    rhythm.pause()
-    theme.pause()
-    }
+    },1000)
 
-	tokensToPlay = parseInt( $("#tokens-amount").text() )
-	$('#tokens-to-play').text( slider.value )	
-
-    $.ajax({
-        type: "POST", 
-        url: "https://qa.staging.snowfly.com/gameapi/v1/playGame", 
-        //data: { tokens: tokensToPlay, gameId: _gameID },
-        data: { tokens: slider.value, gameId: _gameID },
-        success: function( data ) {
-            playID = data.playId;
-            pointsWon = data.totalPoints;
-            tokensPlayed = tokensToPlay;
-            runGamePlay()
-        }
-    });                
-}
-
-function runGamePlay(){
-
-	rhythm.pause()
-
-	playButtonAnim.play()
-	gameplay = {
-	    container: document.getElementById("gameplay"),
-	    renderer: 'svg',
-	    loop: true,
-	    prerender: false,
-	    autoplay: false,
-	    autoloadSegments: false,
-	    rendererSettings: {
-	        progressiveLoad: false
-	    },
-
-	    animationData: JSONS.gamePlay
-	}
-
-	gameplayAnim = bodymovin.loadAnimation(gameplay)
-	JSONS.gamePlay.layers[3].layers[1].ks.r.k[0].e = [degrees[playID - 1]]
-	gameplayAnim.playSegments([0,39], true);
-
-   	var RAD2DEG = 180 / Math.PI;            
-    var dial = $("#wheel");
-    dial.centerX = dial.offset().left + dial.width()/2;
-    dial.centerY =  dial.offset().top + dial.height()/2;
-    //jeloy
-   
-    var offset, dragging = false;
-    dial.mousedown(function(e) {
-      dragging = true;
-      offset = Math.atan2(dial.centerY - e.pageY, e.pageX - dial.centerX);
-      if(!isMuted){
-      rope.play()
-      theme.play()
-	  rhythm.pause()
-      rope.loop = true}
-      if(isMuted){
-      rope.pause()
-      theme.pause()
-      rhythm.pause()
-      }
-    })
-
-	$('.spin-button-container').addClass('flex-v')
-	
-	var spinButton = {
-	    container: document.getElementById("spin-button"),
-	    renderer: 'svg',
-	    loop: false,
-	    prerender: false,
-	    autoplay: false,
-	    autoloadSegments: false,
-	    rendererSettings: {
-	        progressiveLoad: false
-	    },
-
-	    animationData: JSONS.spinButton
-	}
-	var spinButtonAnim = bodymovin.loadAnimation(spinButton)
-	
-	$('#spin-button').click(function(){
-		spinButtonAnim.play()
-            if(!isMuted){hit.play()}
-            if(isMuted){hit.pause()}
-		$(this).fadeOut()
-		if (!isGamePlayPlayed) gamePlayFunc()
-	})
-	
-	if (!detectmob() ){ 
-	    $(document).mouseup(function() {
-			$("#spin-button").css({pointerEvents: 'none'})
-			$("#spip-button").addClass('disabled')
-	    	if(!draggOff) {
-				if (!isGamePlayPlayed) gamePlayFunc()
-	    	}
-	    })		
-	}
-
-    $(document).mousemove(function(e) {
-      if (dragging) { 
-        
-        var newOffset = Math.atan2(dial.centerY - e.pageY, e.pageX - dial.centerX);
-        var r = (offset - newOffset) * RAD2DEG;
-        
-        dial.css({
-        	'-webkit-transform': 'rotate(' + r + 'deg)',
-        	'-ms-transform': 'rotate(' + r + 'deg)',
-        	'transform': 'rotate(' + r + 'deg)'
-        });
-      }
-    })
-}
-
-function gamePlayFunc(){
-	draggOff = true
-	isGamePlayPlayed = true
-	$("#wheel").css({pointerEvents: 'none'})
-    setTimeout(function() {
-                if(!isMuted){
-           rope.pause()
-           theme.pause()
-           post.play()
-        }
-        if(isMuted){
-           rope.pause()
-           theme.pause() 
-           post.pause()
-        }
-    }, 2000)    
-	
-	if (!dragged){
-      	dragging = false
-      	setTimeout(function(){  
-      		dragged = true  
-      	}, 3500)
-      	var rotation = $("#wheel").css('transform')
-      	var values = rotation.split('(')[1],
-	    	values = values.split(')')[0],
-	    	values = values.split(',');
-
-		var b = values[1];
-
-		var angle = Math.round(Math.asin(b) * (180/Math.PI));
-		gameplayAnim.loop = false
-		gameplayAnim.playSegments([40, 294], false);
-		gameplayAnim.addEventListener('complete', function(){
-			gameplayAnim.loop = false
-			if(dragged){
-		    	$('#tokens-to-play-container, .tokens-text-view, .points-text-view').fadeOut(function(){
-		    		$(this).remove()
-		    	})
-				setupMapScreen()
-				theme.pause()
-				if (!finalSetted) finalSetted = true
-				$('#final-button').click(restartGame)
-			} else { setTimeout(function(){ 
-				post.play()  
-				$('#support').css({opacity: 0}) }, 1800) }
-		});
-	}
-}
-
-function updateDraggableValue(val){
-    var value = parseInt(val)
-    var newValue
-    
-    if(value <= 92){
-        newVal = value * 10 / 92 
-    }
-    if(value > 92 && value <= 204){
-        newVal = ((value - 92) * (50 * 1.5) / 204) + 10 
-    }
-    if(value > 204){
-        newVal = ((value - 204) * (250 + 245) / 344) + 50 
-    }
-    if(newVal > 250){ 
-        newVal = 250
-    }
-
-    if(newVal < 1) newVal = 1
-    if(newVal > _userData.tokenBalance) newVal = _userData.tokenBalance
-    $('#tokens-amount').text(parseInt(newVal))
-}
-function detectmob() { 
-	 if( navigator.userAgent.match(/Android/i)
-	 || navigator.userAgent.match(/webOS/i)
-	 || navigator.userAgent.match(/iPhone/i)
-	 || navigator.userAgent.match(/iPad/i)
-	 || navigator.userAgent.match(/iPod/i)
-	 || navigator.userAgent.match(/BlackBerry/i)
-	 || navigator.userAgent.match(/Windows Phone/i)){
-	    return true;
-	 } else {
-	    return false;
-	 }
 }
 
 function getParameterByName(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, '\\$&');
-    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+
+  if (!url) url = window.location.href;
+
+  name = name.replace(/[\[\]]/g, '\\$&');
+  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+
 }
 
 function setSoundSettings() {
-    if(!isMuted) {$('.sound-toggle').attr('src','./images/sound_on.png')}
-    else {$('.sound-toggle').attr('src','./images/sound_off.png')}
 
-	prize.volume = (isMuted) ? 0 : 1
-	whoosh.volume = (isMuted) ? 0 : 1
-	crowd.volume = (isMuted) ? 0 : 1
-	rhythm.volume = (isMuted) ? 0 : 1
-	rope.volume = (isMuted) ? 0 : 1
-	theme.volume = (isMuted) ? 0 : 1
-	post.volume = (isMuted) ? 0 : 1
-	hit.volume = (isMuted) ? 0 : 1
+  if(!isMuted) {$('.sound-toggle').attr('src','./assets/img/sound_on.png')}
+  else {$('.sound-toggle').attr('src','./assets/img/sound_off.png')}
+  
+  scratching.volume = (isMuted) ? 0 : 1
+  gamePlaySound.volume = (isMuted) ? 0 : 1
+  themeSound.volume = (isMuted) ? 0 : 1
+  hit.volume = (isMuted) ? 0 : 1
+  breakSound.volume = (isMuted) ? 0 : 1
+  whoosh.volume = (isMuted) ? 0 : 1
+  prize.volume = (isMuted) ? 0 : 1
+  crowd.volume = (isMuted) ? 0 : 1
+
 }
