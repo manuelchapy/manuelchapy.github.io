@@ -1,1 +1,0 @@
-pass the amount data of the token/point balance to both text layers with 0s that are inside the comp

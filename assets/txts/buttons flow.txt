@@ -1,3 +1,0 @@
-stopped at frame 0
-if hover then go to frame 1
-if click play until frame 10
