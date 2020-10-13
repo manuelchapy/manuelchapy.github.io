@@ -533,7 +533,7 @@ function init() {
     $.ajax({
 
       type: "POST", 
-      url: "http://qa.staging.snowfly.com/gameapi/v1/getStartInfo",
+      url: "https://qa.staging.snowfly.com/gameapi/v1/getStartInfo",
       
       data: { gameId: _gameID },
 
@@ -794,7 +794,7 @@ function setupInitLayers(){
           isPlayClicked = true
           $.ajax({
           type: "POST", 
-          url: "http://qa.staging.snowfly.com/gameapi/v1/playGame", 
+          url: "https://qa.staging.snowfly.com/gameapi/v1/playGame", 
           data: { tokens: slider.value, gameId: _gameID },
           success: function( data ) {                
               playID = data.playId
