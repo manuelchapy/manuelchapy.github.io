@@ -1,91 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
-    <link href="./css/styles.css" rel="stylesheet">
 	<meta charset="UTF-8">
-	<title>Wheel game</title>
+	<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
     <!--[if lt IE 9]><!-->
-      <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js' type='text/javascript'/></script>
+   	 <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js' type='text/javascript'></script>
     <!--<![endif]--> 
 
     <!--[if (gte IE 9) | (!IE)]><!-->  
-      <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js' type='text/javascript'/></script>
-    <!--<![endif]--> 	
-    <script src="./js/SnowflyGameApi.js"></script>
+      <script src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js' type='text/javascript'></script>
+    <!--<![endif]--> 
+	<script src="./js/SnowflyGameApi.js"></script>
+    <script src="./js/lottie.js"></script>
     <script src="./js/jquery-ui.js"></script>
-	<script type="text/javascript" src="./js/lottie.js"></script>
+    <script src="./js/jquery.ui.touch-punch.min.js"></script>
+	<title>Pachinko</title>
 </head>
 <body>
-    <audio class='disp-none sound' id='hit' src="./sounds/hit.mp3" controls="false"></audio>
-    <audio class='disp-none sound' id='prize' src="./sounds/prize.mp3" controls="false"></audio>
-    <audio class='disp-none sound' id='whoosh' src="./sounds/whoosh.mp3" controls="false"></audio>
-    <audio class='disp-none sound' id='crowd' src="./sounds/crowd.mp3" controls="false"></audio>
-    <audio class='disp-none sound' id='rhythm' src="./sounds/rhythm.mp3" controls="false"></audio>
-    <audio class='disp-none sound' id='rope' src="./sounds/rope.mp3" controls="false"></audio>
-    <audio class='disp-none sound' id='theme' src="./sounds/theme.mp3" controls="false"></audio>
-    <audio class='disp-none sound' id='post-spin' src="./sounds/post-spin.mp3" controls="false"></audio>
-    <!-- New Sounds -->
-    <audio class='disp-none sound' id='jackpot' src="./sounds/jackpot.mp3" controls="false"></audio>
-    <audio class='disp-none sound' id='map_intro' src="./sounds/map_intro.mp3" controls="false"></audio>
-    <audio class='disp-none sound' id='map' src="./sounds/map.mp3" controls="false"></audio>
-    <audio class='disp-none sound' id='page-flip' src="./sounds/page-flip.mp3" controls="false"></audio>
-    	
-    	<div class="layer flex-v w-100 h-100 loading" id='loading-message'>
-                <div class="flex-h">
-                    <p class='t-center' id="load">loading...</p>
-                </div>
-		</div>
-<div class="main-container">
-	<div class="controls-container">
-        <div class="sound-container">
-            <img class='sound-toggle pointer' src="./images/sound_on.png" alt="Sound">
-        </div>
-    </div>
-	<div class="layer" id="game-container">
+        <audio class='disp-none sound' id='startSong' src="./assets/sounds/pachinkoTheme.mp3" controls="false"></audio>      
+        <audio class='disp-none sound' id='hit' src="./assets/sounds/hit.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='gameplaySong' src="./assets/sounds/gameplay-gral.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-1' src="./assets/sounds/10a-1.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-2' src="./assets/sounds/10a-2.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-3' src="./assets/sounds/10a-3.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-4' src="./assets/sounds/10a-4.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-5' src="./assets/sounds/10a-5.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-6' src="./assets/sounds/10a-6.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-7' src="./assets/sounds/10a-7.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-8' src="./assets/sounds/10a-8.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-9' src="./assets/sounds/10a-9.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-10' src="./assets/sounds/10a-10.mp3" controls="false"></audio>
 
-		<!-- jackpot -->
-		<div id="jackpot-screen" class="layer"></div>
-	
-		<!-- mapScreen -->
-		<div id="map-screen" class="layer">
-			<div class="layer" id="confetti"></div>
-		</div>
+        <audio class='disp-none sound' id='10b-1' src="./assets/sounds/10b-1.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10b-2' src="./assets/sounds/10b-2.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10b-3' src="./assets/sounds/10b-3.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10b-4' src="./assets/sounds/10b-4.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10b-5' src="./assets/sounds/10b-5.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10b-6' src="./assets/sounds/10b-6.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10b-7' src="./assets/sounds/10b-7.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10b-8' src="./assets/sounds/10b-8.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10b-9' src="./assets/sounds/10b-9.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10b-10' src="./assets/sounds/10b-10.mp3" controls="false"></audio>
 
-		<!-- gameScreen -->
-		<div class="layer" id="game-screen">
-			<div class="layer" id="gameplay"></div>
-			<div class="layer flex-v">
-				<div class="spin-button-container f-end w-100 h-100 absolute">
-					<div class="flex-h">
-						<div id="spin-button"></div>
-					</div>
-				</div>
-				<div class="flex-v" id="support">
-					<div class='c-container wheel' id="wheel"></div>
-				</div>
-			</div>
-		</div>
+        <audio class='disp-none sound' id='20a-1' src="./assets/sounds/20a-1.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20a-2' src="./assets/sounds/20a-2.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20a-3' src="./assets/sounds/20a-3.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20a-4' src="./assets/sounds/20a-4.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20a-5' src="./assets/sounds/20a-5.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20a-6' src="./assets/sounds/20a-6.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20a-7' src="./assets/sounds/20a-7.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20a-8' src="./assets/sounds/20a-8.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20a-9' src="./assets/sounds/20a-9.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20a-10' src="./assets/sounds/20a-10.mp3" controls="false"></audio>
+
+        <audio class='disp-none sound' id='20b-1' src="./assets/sounds/20b-1.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20b-2' src="./assets/sounds/20b-2.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20b-3' src="./assets/sounds/20b-3.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20b-4' src="./assets/sounds/20b-4.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20b-5' src="./assets/sounds/20b-5.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20b-6' src="./assets/sounds/20b-6.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20b-7' src="./assets/sounds/20b-7.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20b-8' src="./assets/sounds/20b-8.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20b-9' src="./assets/sounds/20b-9.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20b-10' src="./assets/sounds/20b-10.mp3" controls="false"></audio>
+
+        <audio class='disp-none sound' id='25a-1' src="./assets/sounds/25a-1.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25a-2' src="./assets/sounds/25a-2.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25a-3' src="./assets/sounds/25a-3.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25a-4' src="./assets/sounds/25a-4.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25a-5' src="./assets/sounds/25a-5.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25a-6' src="./assets/sounds/25a-6.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25a-7' src="./assets/sounds/25a-7.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25a-8' src="./assets/sounds/25a-8.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25a-9' src="./assets/sounds/25a-9.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25a-10' src="./assets/sounds/25a-10.mp3" controls="false"></audio>
+
+        <audio class='disp-none sound' id='25b-1' src="./assets/sounds/25b-1.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25b-2' src="./assets/sounds/25b-2.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25b-3' src="./assets/sounds/25b-3.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25b-4' src="./assets/sounds/25b-4.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25b-5' src="./assets/sounds/25b-5.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25b-6' src="./assets/sounds/25b-6.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25b-7' src="./assets/sounds/25b-7.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25b-8' src="./assets/sounds/25b-8.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25b-9' src="./assets/sounds/25b-9.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25b-10' src="./assets/sounds/25b-10.mp3" controls="false"></audio>
+
+        <audio class='disp-none sound' id='25b-win' src="./assets/sounds/25b-win.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25a-win' src="./assets/sounds/25a-win.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20b-win' src="./assets/sounds/20b-win.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20a-win' src="./assets/sounds/20a-win.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10b-win' src="./assets/sounds/10b-win.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-win' src="./assets/sounds/10a-win.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='slot' src="./assets/sounds/slot.mp3" controls="false"></audio>
+
+        <audio class='disp-none sound' id='25b-ticks' src="./assets/sounds/25b-ticks.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='25a-ticks' src="./assets/sounds/25a-ticks.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20b-ticks' src="./assets/sounds/20b-ticks.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='20a-ticks' src="./assets/sounds/20a-ticks.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10b-ticks' src="./assets/sounds/10b-ticks.mp3" controls="false"></audio>
+        <audio class='disp-none sound' id='10a-ticks' src="./assets/sounds/10a-ticks.mp3" controls="false"></audio>
+
 		
-		<!-- token-screen -->
-		<div class="layer" id="token-screen">
-			<div class="flex-v full-container space-around">
-				<div class="tokens-container flex-h w-80 c-container space-between">
-					<div class='flex-v tokens-text-view'>
-						<p class='container' id="tokens"></p>
-						<p class='t-center'>Tokens</p>
+		<div class="super-container relative c-container h-100">
+			<div class="main-container c-container layer">
+				<!--gameplay screen-->
+				<div id="no-tokens-screen" class="layer"></div>
+				<div class="layer" id="token-screen">
+					<div class="layer no-server-request" id="no-server-request">
+						<div class="mg-t" id="t-s"></div>
 					</div>
-					<div class='flex-v points-text-view'>
-						<p class='container' id="points"></p>
-						<p class='t-center'>Points</p>
-					</div>
+					<div class="layer">
+                </div>
+					<div class="layer" id="gameplay"></div>
+					<div class="layer" id="balls10a"></div>
+					<div class="layer" id="balls10b"></div>
+					<div class="layer" id="balls20a"></div>
+					<div class="layer" id="balls20b"></div>
+					<div class="layer" id="balls25a"></div>
+					<div class="layer" id="balls25b"></div>
 				</div>
-				<!-- token screen-->
+				<div class="layer" id="play-again"></div>
+				<div class="layer" id="play-more"></div>
 				<div class="layer">
+					<div class="layer" id="feeding-screen"></div>
+					<div class="layer" id="feeding-button"></div>
+				</div>
+				<!--//gameplay screen-->
+				<!--Token Screen-->
+				<div class="layer" id='init-animations'>
 					<div class="layer" id="token-screen">
 						<div class="layer">
+							<div class="layer" id="overlay"></div>
 							<div class="layer"></div>
+							<div class="score-container flex-h">
 								<div id="balance"></div>
+							</div>
 						</div>
 					</div>
 					<div class="flex-v layer">
@@ -97,42 +149,35 @@
 							<div id="tokens-amount"></div>
 						</div>
 					</div>
-					<div id="tokens-button" data-container="token-screen"></div>
+					<div id="play-button"></div>
 					</div>
 				</div>
-				<!---->
 			</div>
-		</div>
-		<div id="no-tokens-screen" class="layer"></div>
-		<div class="layer no-server-request" id="no-server-request">
-                <div class="mg-t" id="t-s"></div>
+			<!-- Start Screen -->
+		    <div class="layer" id="s-layer">
+			    <div class="layer" id="start-screen">
+			    </div>				   
+			    <div id="start-button-container">
+			    	 	<div id="start-button"></div>
+			    </div>	
+			</div>
+		    <div class='sound-container' id="sound">
+              <img src='./assets/img/sound_on.png' class="sound-toggle"/>
             </div>
-		<!-- storytel-container -->
-		<div id="storytel-container" class='layer'>
-			<div id="skip-button" data-container='storytel-container'></div>
 		</div>
-		<!-- initial-screen -->
-		<div class="layer" id="initial-screen">
-			<div class="flex-v full-container space-between">
-				<div></div>
-				<div></div>
-				<div class="flex-h">
-					<div id="start-button" data-container="initial-screen"></div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+		<div class="loading" id='loading-screen'>
+            <div class="flex-h">
+            </div>
+        </div>
+       
+	<script type="text/javascript" src="./js/timeout.js"></script>
+	<script src="./js/jsons.js" type="text/javascript"></script>
+	<script src="./js/main.js" type="text/javascript"></script>
+	<script>
+		$(document).ready(function(){
+		    loading()
+		})
+	</script>
+
 </body>
-<script type="text/javascript" src="./js/timeout.js"></script>
-<script type="text/javascript" src="./js/jsons.js"></script>
-<script type="text/javascript" src="./js/main.js"></script>
-<script>
-    $(document).ready(function() {
-    	setupSounds();
-    	setTimeout(function(){
-    		init();	
-    	},2000)
-    });
-</script>
 </html>
